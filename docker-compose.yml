@@ -1,0 +1,96 @@
+services:
+    mysql:
+        image: mysql:5.7
+        container_name: mysql-db
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: examplepassword
+            MYSQL_DATABASE: inventory_management_system
+        ports:
+            - "3306:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+        networks:
+            - laravel_network
+
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: laravel-app
+        restart: always
+        ports:
+            - "8000:8000"
+        depends_on:
+            - mysql
+        environment:
+            DB_HOST: mysql
+            DB_PORT: 3306
+            DB_DATABASE: inventory_management_system
+            DB_USERNAME: root
+            DB_PASSWORD: examplepassword
+        env_file:
+            - .env.example.docker
+        volumes:
+            - ./:/usr/src/app
+            - vendor:/usr/src/app/vendor
+            - node_modules:/usr/src/app/node_modules
+        networks:
+            - laravel_network
+        command: >
+            bash -c "
+                composer install --no-interaction &&
+                php artisan migrate --force || true &&
+                php artisan storage:link || true &&
+                php artisan serve --host=0.0.0.0 --port=8000
+            "
+
+    vite:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: vite-dev
+        restart: always
+        working_dir: /usr/src/app
+        volumes:
+            - ./:/usr/src/app
+            - node_modules:/usr/src/app/node_modules
+        command: >
+            bash -c "
+                npm install &&
+                npm run dev -- --host 0.0.0.0 --port 5173
+            "
+        ports:
+            - "5173:5173"
+        networks:
+            - laravel_network
+        depends_on:
+            - app
+
+    migrator:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: laravel-migrator
+        restart: always
+        working_dir: /usr/src/app
+        volumes:
+            - ./:/usr/src/app
+        networks:
+            - laravel_network
+        command: >
+            bash -lc "
+              which inotifywait >/dev/null 2>&1 && \
+              while inotifywait -e modify,create,delete -r database/migrations; do \
+                  php artisan migrate --force || true; \
+              done \
+              || while true; do php artisan migrate --force || true; sleep 5; done
+            "
+
+volumes:
+    mysql_data:
+    vendor:
+    node_modules:
+
+networks:
+    laravel_network:
