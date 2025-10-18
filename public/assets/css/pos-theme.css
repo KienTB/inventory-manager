@@ -1,0 +1,138 @@
+/* Modern POS Theme - Clean, Professional, Minimal */
+:root{
+  --pos-primary:#2563eb;     /* blue-600 - modern blue */
+  --pos-primary-light:#3b82f6; /* blue-500 - lighter accent */
+  --pos-success:#059669;     /* emerald-600 - success green */
+  --pos-warning:#d97706;     /* amber-600 - warning orange */
+  --pos-danger:#dc2626;      /* red-600 - error red */
+
+  --pos-bg:#f8fafc;          /* slate-50 - very light background */
+  --pos-surface:#ffffff;     /* white - card backgrounds */
+  --pos-surface-elevated:#fefefe; /* slightly elevated surface */
+  --pos-border:#e2e8f0;      /* slate-200 - soft borders */
+  --pos-border-light:#f1f5f9; /* slate-100 - very light borders */
+
+  --pos-text:#0f172a;        /* slate-900 - main text */
+  --pos-text-muted:#475569;  /* slate-600 - muted text */
+  --pos-text-light:#64748b;  /* slate-500 - light text */
+
+  --pos-radius:16px;         /* larger border radius for modern feel */
+  --pos-radius-sm:12px;      /* medium border radius */
+  --pos-radius-xs:8px;       /* small border radius */
+
+  --pos-shadow:0 1px 3px rgba(15,23,42,.08), 0 1px 2px rgba(15,23,42,.04);
+  --pos-shadow-md:0 4px 6px rgba(15,23,42,.07), 0 2px 4px rgba(15,23,42,.04);
+  --pos-shadow-lg:0 10px 15px rgba(15,23,42,.08), 0 4px 6px rgba(15,23,42,.05);
+  --pos-shadow-xl:0 20px 25px rgba(15,23,42,.1), 0 10px 10px rgba(15,23,42,.04);
+}
+
+/* Global */
+html,body{background:var(--pos-bg);color:var(--pos-text);} 
+.page-wrapper{background:var(--pos-bg);} 
+
+/* Cards */
+.card{border:1px solid var(--pos-border)!important;border-radius:var(--pos-radius)!important;box-shadow:var(--pos-shadow)!important;}
+.card-header{background:var(--pos-surface)!important;border-bottom:1px solid var(--pos-border)!important;}
+.card-footer{background:var(--pos-surface)!important;border-top:1px solid var(--pos-border)!important;}
+
+/* Tables */
+.table{border-color:var(--pos-border)!important;border-radius:var(--pos-radius-sm)!important;overflow:hidden;}
+.table thead th{background:linear-gradient(135deg, var(--pos-surface) 0%, var(--pos-surface-elevated) 100%)!important;border-color:var(--pos-border)!important;color:var(--pos-text-muted);font-weight:600;font-size:.875rem;text-transform:uppercase;letter-spacing:0.05em;}
+.table td,.table th{vertical-align:middle;border-color:var(--pos-border)!important;}
+.table-striped tbody tr:nth-of-type(even){background-color:var(--pos-bg);}
+.table-hover tbody tr:hover{background-color:var(--pos-bg);}
+
+/* Forms */
+.form-control, .form-select{border-radius:var(--pos-radius-sm)!important;border-color:var(--pos-border)!important;box-shadow:none!important;background:var(--pos-surface);transition:border-color .15s ease-in-out, box-shadow .15s ease-in-out;}
+.input-group .form-control{border-right-color:var(--pos-border)!important;}
+.form-control:focus, .form-select:focus{border-color:var(--pos-primary)!important;box-shadow:0 0 0 3px rgba(37,99,235,.1)!important;}
+.form-control::placeholder{color:var(--pos-text-light);opacity:0.6;}
+label{color:var(--pos-text-muted);font-weight:500;font-size:.875rem;}
+
+/* Buttons */
+.btn{border-radius:var(--pos-radius-sm)!important;box-shadow:var(--pos-shadow)!important;transition:none!important;font-weight:500;}
+.btn-primary{background:var(--pos-primary)!important;border-color:var(--pos-primary)!important;}
+.btn-primary:hover{background:var(--pos-primary)!important;border-color:var(--pos-primary)!important;}
+.btn-outline-success:hover,.btn-outline-warning:hover,.btn-outline-danger:hover{background:var(--pos-surface-elevated);}
+.btn-sm{padding:.375rem .75rem;font-size:.75rem;}
+
+/* Badges */
+.badge{border-radius:9999px!important;padding:.35rem .6rem;font-weight:600;font-size:.75rem;}
+.badge.bg-green{background:var(--pos-success)!important;color:#fff;}
+.badge.bg-orange{background:var(--pos-warning)!important;color:#fff;}
+.badge.bg-red{background:var(--pos-danger)!important;color:#fff;}
+.badge.bg-blue{background:var(--pos-primary-light)!important;color:#fff;}
+.badge.bg-purple{background:#7c3aed!important;color:#fff;}
+
+/* Navbar/Header minimal motion */
+.navbar, .navbar-nav .nav-link{transition:none!important;}
+
+/* Dropdowns & menus */
+.dropdown-menu{border-radius:12px;border:1px solid var(--pos-border);box-shadow:var(--pos-shadow-lg);} 
+.dropdown-item{border-radius:8px;} 
+.dropdown-item:hover{background:var(--pos-surface);color:var(--pos-text);}
+
+/* Pills for quick amounts (in CheckoutPanel) */
+.pos-quick-amounts .btn{border-radius:9999px!important;border:1px solid var(--pos-border-light)!important;background:var(--pos-surface);color:var(--pos-text);font-weight:500;transition:none;}
+.pos-quick-amounts .btn:hover{background:var(--pos-surface);border-color:var(--pos-border-light);color:var(--pos-text);}
+
+/* Tabs */
+.nav-tabs .nav-link{border-radius:var(--pos-radius-sm)!important;border-color:transparent!important;color:var(--pos-text-muted);font-weight:500;padding:.75rem 1rem;transition:none;}
+.nav-tabs .nav-link.active{background:var(--pos-primary)!important;border-color:var(--pos-primary)!important;color:#fff!important;box-shadow:var(--pos-shadow-sm);}
+.nav-tabs .nav-link:hover{background:var(--pos-surface);color:var(--pos-text-muted);}
+
+/* Remove heavy animations globally */
+*{scroll-behavior:auto!important;}
+.collapse, .collapsing, .fade{transition:none!important;}
+.modal, .offcanvas{transition:none!important;}
+
+/* POS layout adjustments */
+.pos-panel{background:var(--pos-surface);border:1px solid var(--pos-border);border-radius:var(--pos-radius);box-shadow:var(--pos-shadow);}
+.pos-toolbar{background:var(--pos-surface-elevated);border:1px solid var(--pos-border);border-radius:var(--pos-radius-sm);padding:.75rem 1rem;box-shadow:var(--pos-shadow-sm);}
+.pos-line{border-bottom:1px dashed var(--pos-border-light);}
+
+/* Search input look */
+.pos-search{border-radius:9999px!important;padding-left:2.75rem!important;background:var(--pos-surface);border:2px solid var(--pos-border-light);}
+.pos-search:focus{border-color:var(--pos-primary-light)!important;box-shadow:0 0 0 3px rgba(59,130,246,.1)!important;}
+.pos-search::placeholder{color:var(--pos-text-light);}
+
+/* Icons sizing */
+.icon{stroke-width:1.8;}
+
+/* Minimal focus ring for clickable items */
+.btn:focus, .form-control:focus, .form-select:focus, .nav-link:focus{outline:none!important;box-shadow:0 0 0 3px rgba(37,99,235,.1)!important;}
+
+/* Tables dense spacing for lists pages */
+.table td{padding:.75rem 1rem!important;}
+.table th{padding:.75rem 1rem!important;}
+
+/* Utility classes used in Blade */
+.rounded-10{border-radius:10px!important;}
+.rounded-12{border-radius:12px!important;}
+.rounded-16{border-radius:16px!important;}
+.shadow-soft{box-shadow:var(--pos-shadow)!important;}
+.shadow-md{box-shadow:var(--pos-shadow-md)!important;}
+.text-muted-600{color:var(--pos-text-muted)!important;}
+.text-muted-500{color:var(--pos-text-light)!important;}
+.bg-surface{background:var(--pos-surface)!important;}
+.bg-surface-elevated{background:var(--pos-surface-elevated)!important;}
+.border-soft{border-color:var(--pos-border)!important;}
+.border-light{border-color:var(--pos-border-light)!important;}
+
+/* Modern card hover effects */
+.card:hover{transform:none;box-shadow:var(--pos-shadow)!important;transition:none;}
+
+/* Enhanced button interactions */
+.btn:active{transform:none;box-shadow:var(--pos-shadow)!important;}
+.btn:disabled{opacity:0.6;transform:none!important;}
+
+/* Loading states */
+.spinner-border-sm{width:1rem;height:1rem;}
+.text-loading{color:var(--pos-text-muted);}
+
+/* Status indicators */
+.status-indicator{width:8px;height:8px;border-radius:50%;display:inline-block;}
+.status-online{background:var(--pos-success);}
+.status-offline{background:var(--pos-text-light);}
+.status-pending{background:var(--pos-warning);}
+.status-error{background:var(--pos-danger);}
