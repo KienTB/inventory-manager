@@ -4,62 +4,87 @@ namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use Exception;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xls;
+use Illuminate\Http\Request;
 
 class ProductExportController extends Controller
 {
-    public function create()
+    public function create(Request $request)
     {
-        $products = Product::all()->sortBy('product_name');
-
-        $product_array [] = array(
-            'Product Name',
-            'Category Id',
-            'Unit Id',
-            'Product Code',
-            'Stock',
-            'Buying Price',
-            'Selling Price',
-            'Product Image',
-        );
-
-        foreach($products as $product)
-        {
-            $product_array[] = array(
-                'Product Name' => $product->name,
-                'Category Id' => $product->category_id,
-                'Unit Id' => $product->unit_id,
-                'Product Code' => $product->code,
-                'Stock' => $product->quantity,
-                'Buying Price' =>$product->buying_price,
-                'Selling Price' =>$product->selling_price,
-                'Product Image' => $product->product_image,
-            );
-        }
-
-        $this->store($product_array);
-    }
-
-    public function store($products)
-    {
-        ini_set('max_execution_time', 0);
-        ini_set('memory_limit', '4000M');
-
         try {
-            $spreadSheet = new Spreadsheet();
-            $spreadSheet->getActiveSheet()->getDefaultColumnDimension()->setWidth(20);
-            $spreadSheet->getActiveSheet()->fromArray($products);
-            $Excel_writer = new Xls($spreadSheet);
-            header('Content-Type: application/vnd.ms-excel');
-            header('Content-Disposition: attachment;filename="products.xls"');
-            header('Cache-Control: max-age=0');
-            ob_end_clean();
-            $Excel_writer->save('php://output');
-            exit();
-        } catch (Exception $e) {
-            return;
+            $query = Product::with(['category', 'unit']);
+
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                      ->orWhere('code', 'like', '%' . $search . '%')
+                      ->orWhere('product_code', 'like', '%' . $search . '%');
+                });
+            }
+
+            if ($request->filled('category')) {
+                $query->where('category_id', $request->category);
+            }
+
+            if ($request->filled('brand')) {
+                $brand = $request->brand;
+                $query->where('brand', 'like', '%' . $brand . '%');
+            }
+
+            if ($request->filled('price_min')) {
+                $query->where('selling_price', '>=', $request->price_min);
+            }
+
+            if ($request->filled('price_max')) {
+                $query->where('selling_price', '<=', $request->price_max);
+            }
+
+            $products = $query->latest()->get();
+
+            if ($products->isEmpty()) {
+                return redirect()->route('products.index')
+                    ->with('warning', 'Không có sản phẩm nào phù hợp để export!');
+            }
+
+            $filename = 'products_export_' . now()->format('d-m-Y_H-i-s') . '.xls';
+
+            header("Content-Type: application/vnd.ms-excel; charset=utf-8");
+            header("Content-Disposition: attachment; filename=\"$filename\"");
+            header("Pragma: no-cache");
+            header("Expires: 0");
+
+            echo "<table border='1' cellspacing='0' cellpadding='5'>";
+            echo "<thead>
+                    <tr style='background-color:#f2f2f2;'>
+                        <th>ID</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Mã sản phẩm</th>
+                        <th>Danh mục</th>
+                        <th>Thương hiệu</th>
+                        <th>Giá bán</th>
+                        <th>Số lượng</th>
+                    </tr>
+                  </thead>
+                  <tbody>";
+
+            foreach ($products as $p) {
+                echo "<tr>
+                        <td>{$p->id}</td>
+                        <td>{$p->name}</td>
+                        <td>{$p->code}</td>
+                        <td>" . ($p->category->name ?? '-') . "</td>
+                        <td>{$p->brand}</td>
+                        <td>" . number_format($p->selling_price, 0, ',', '.') . "</td>
+                        <td>{$p->quantity}</td>
+                      </tr>";
+            }
+
+            echo "</tbody></table>";
+            exit; 
+
+        } catch (\Exception $e) {
+            return redirect()->route('products.index')
+                ->with('error', 'Lỗi khi export: ' . $e->getMessage());
         }
     }
 }

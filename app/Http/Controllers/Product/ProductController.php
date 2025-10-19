@@ -20,20 +20,35 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $products = Product::with(['category', 'unit', 'productUnits.unit'])
-            ->when($request->get('search'), function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('code', 'like', "%{$search}%")
-                    ->orWhere('product_code', 'like', "%{$search}%");
-            })
-            ->when($request->get('category'), function ($query, $category) {
-                $query->where('category_id', $category);
-            })
-            ->latest()
-            ->paginate(10);
-
-        $categories = Category::all();
-
+        $query = Product::with(['category', 'unit']);
+        
+        // Lọc theo tên hoặc mã sản phẩm
+        if ($request->search) {
+            $query->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('code', 'like', '%' . $request->search . '%');
+        }
+        
+        // Lọc theo danh mục
+        if ($request->category) {
+            $query->where('category_id', $request->category);
+        }
+        
+        // Lọc theo thương hiệu
+        if ($request->brand) {
+            $query->where('brand', 'like', '%' . $request->brand . '%');
+        }
+        
+        // Lọc theo khoảng giá
+        if ($request->price_min) {
+            $query->where('selling_price', '>=', $request->price_min);
+        }
+        if ($request->price_max) {
+            $query->where('selling_price', '<=', $request->price_max);
+        }
+        
+        $products = $query->paginate(15);
+        $categories = Category::all(); // Để hiển thị trong dropdown lọc
+        
         return view('products.index', compact('products', 'categories'));
     }
 
@@ -199,7 +214,6 @@ class ProductController extends Controller
 
             $product->update($productData);
 
-            // 🔑 Cập nhật ảnh nếu có
             if ($request->hasFile('product_image')) {
                 if ($product->product_image) {
                     Storage::disk('public')->delete('products/' . $product->product_image);
@@ -210,10 +224,8 @@ class ProductController extends Controller
                 $product->update(['product_image' => $imageName]);
             }
 
-            // 🔑 Xóa đơn vị phụ cũ
             $product->productUnits()->where('is_base_unit', 0)->delete();
 
-            // 🔑 Lưu lại các đơn vị phụ mới
             if ($request->has('product_units')) {
                 foreach ($request->product_units as $unitData) {
                     if (!empty($unitData['unit_id'])) {
@@ -230,7 +242,6 @@ class ProductController extends Controller
                 }
             }
 
-            // 🔑 Cập nhật đơn vị cơ bản
             $baseUnit = $product->productUnits()->where('is_base_unit', 1)->first();
             if ($baseUnit) {
                 $baseUnit->update([
@@ -258,9 +269,6 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Xóa sản phẩm
-     */
     public function destroy(Product $product)
     {
         if ($product->product_image) {
@@ -274,13 +282,34 @@ class ProductController extends Controller
             ->with('success', 'Sản phẩm đã được xóa thành công!');
     }
 
-    /**
-     * Sinh mã sản phẩm tự động (PRD00001, PRD00002, ...)
-     */
-    private function generateProductCode()
+       private function generateProductCode()
     {
         $lastProduct = Product::orderBy('id', 'desc')->first();
         $number = $lastProduct ? intval(substr($lastProduct->code, 3)) + 1 : 1;
         return 'PRD' . str_pad($number, 5, '0', STR_PAD_LEFT);
+    }
+
+    public function updatePrice(Request $request, $productId)
+    {
+        try {
+            $product = Product::findOrFail($productId);
+            $validated = $request->validate([
+                'buying_price' => 'nullable|numeric|min:0',
+                'selling_price' => 'required|numeric|min:0',
+                'commission' => 'nullable|numeric|min:0|max:100',
+                'tax' => 'nullable|numeric|min:0|max:100',
+            ]);
+            $updateData = array_filter($validated, fn($v) => $v !== null && $v !== '');
+            $product->update($updateData);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'Cập nhật giá thành công!']);
+            }
+            return redirect()->route('products.index')->with('success', 'Cập nhật giá thành công!');
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
+            }
+            return back()->with('error', 'Lỗi: ' . $e->getMessage());
+        }
     }
 }
