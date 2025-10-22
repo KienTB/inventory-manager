@@ -39,21 +39,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-    // POS
-    Route::get('/pos', [PosController::class, 'index'])->name('pos.index');
-    Route::post('/pos/checkout', [OrderController::class, 'store'])->name('pos.checkout');
 
     // User Management
     Route::resource('/users', UserController::class); //->except(['show']);
     Route::put('/user/change-password/{username}', [UserController::class, 'updatePassword'])->name('users.updatePassword');
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/profile/settings', [ProfileController::class, 'settings'])->name('profile.settings');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('/quotations', QuotationController::class);
@@ -68,43 +62,56 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/products/export', [ProductExportController::class, 'create'])->name('products.export.store');
     Route::resource('/products', ProductController::class);
 
-    // Route Orders
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/pending', OrderPendingController::class)->name('orders.pending');
-    Route::get('/orders/complete', OrderCompleteController::class)->name('orders.complete');
-
+    // Route Orders - Admin có thể tạo và chỉnh sửa đơn hàng
     Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
     Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.store');
+    Route::put('/orders/update/{order}', [OrderController::class, 'update'])->name('orders.update');
 
     Route::post('/invoice/create', [InvoiceController::class, 'create'])->name('invoice.create');
 
-    // SHOW ORDER
-    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-    Route::put('/orders/update/{order}', [OrderController::class, 'update'])->name('orders.update');
-
-    // DUES
-    Route::get('/due/orders/', [DueOrderController::class, 'index'])->name('due.index');
-    Route::get('/due/order/view/{order}', [DueOrderController::class, 'show'])->name('due.show');
+    // DUES - Admin có thể chỉnh sửa đơn hàng nợ
     Route::get('/due/order/edit/{order}', [DueOrderController::class, 'edit'])->name('due.edit');
     Route::put('/due/order/update/{order}', [DueOrderController::class, 'update'])->name('due.update');
 
-    // TODO: Remove from OrderController
-    Route::get('/orders/details/{order_id}/download', [OrderController::class, 'downloadInvoice'])->name('order.downloadInvoice');
-
-    // Route Purchases
+    // Route Purchases - Chỉ admin mới có thể quản lý mua hàng
     Route::get('/purchases/approved', [PurchaseController::class, 'approvedPurchases'])->name('purchases.approvedPurchases');
     Route::get('/purchases/report', [PurchaseController::class, 'dailyPurchaseReport'])->name('purchases.dailyPurchaseReport');
     Route::get('/purchases/report/export', [PurchaseController::class, 'getPurchaseReport'])->name('purchases.getPurchaseReport');
     Route::post('/purchases/report/export', [PurchaseController::class, 'exportPurchaseReport'])->name('purchases.exportPurchaseReport');
 
-    Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
     Route::get('/purchases/create', [PurchaseController::class, 'create'])->name('purchases.create');
     Route::post('/purchases', [PurchaseController::class, 'store'])->name('purchases.store');
-
-    Route::get('/purchases/{purchase}', [PurchaseController::class, 'show'])->name('purchases.show');
     Route::get('/purchases/{purchase}/edit', [PurchaseController::class, 'edit'])->name('purchases.edit');
     Route::put('/purchases/{purchase}/edit', [PurchaseController::class, 'update'])->name('purchases.update');
     Route::delete('/purchases/{purchase}', [PurchaseController::class, 'destroy'])->name('purchases.delete');
+});
+
+// Routes cho cả admin và user (nhưng với quyền khác nhau)
+Route::middleware(['auth'])->group(function () {
+    // POS - Cả admin và user đều có thể bán hàng
+    Route::get('/pos', [PosController::class, 'index'])->name('pos.index');
+    Route::post('/pos/checkout', [OrderController::class, 'store'])->name('pos.checkout');
+
+    // Profile - Chỉnh sửa thông tin cá nhân (cả admin và user)
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // Orders - Xem đơn hàng (cả admin và user đều có thể xem)
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/pending', OrderPendingController::class)->name('orders.pending');
+    Route::get('/orders/complete', OrderCompleteController::class)->name('orders.complete');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+
+    // Download invoice - Cả admin và user đều có thể tải
+    Route::get('/orders/details/{order_id}/download', [OrderController::class, 'downloadInvoice'])->name('order.downloadInvoice');
+
+    // Purchases - User chỉ có thể xem, không thể chỉnh sửa
+    Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
+    Route::get('/purchases/{purchase}', [PurchaseController::class, 'show'])->name('purchases.show');
+
+    // DUES - User chỉ có thể xem
+    Route::get('/due/orders/', [DueOrderController::class, 'index'])->name('due.index');
+    Route::get('/due/order/view/{order}', [DueOrderController::class, 'show'])->name('due.show');
 });
 
 require __DIR__.'/auth.php';
