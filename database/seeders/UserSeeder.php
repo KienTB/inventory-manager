@@ -13,32 +13,41 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $users = collect([
+        // Update existing users with roles or create new ones
+        $users = [
             [
                 'name' => 'Admin',
+                'username' => 'admin',
                 'email' => 'admin@admin.com',
-                'email_verified_at' => now(),
-                'password' => bcrypt('password'),
-                'created_at' => now()
+                'role' => 'admin',
             ],
             [
                 'name' => 'quest',
+                'username' => 'quest',
                 'email' => 'quest@quest.com',
-                'email_verified_at' => now(),
-                'password' => bcrypt('password'),
-                'created_at' => now()
+                'role' => 'user',
             ],
             [
                 'name' => 'user',
+                'username' => 'user',
                 'email' => 'user@user.com',
-                'email_verified_at' => now(),
-                'password' => bcrypt('password'),
-                'created_at' => now()
+                'role' => 'user',
             ]
-        ]);
+        ];
 
-        $users->each(function ($user){
-            User::insert($user);
-        });
+        foreach ($users as $userData) {
+            User::updateOrCreate(
+                ['email' => $userData['email']],
+                [
+                    'name' => $userData['name'],
+                    'username' => $userData['username'],
+                    'role' => $userData['role'],
+                    'email_verified_at' => now(),
+                    'password' => bcrypt('password'),
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]
+            );
+        }
     }
 }

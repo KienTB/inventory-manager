@@ -18,6 +18,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'username',
         'email',
         'password',
+        'role',
         'bank_name',
         'bank_bin',
         'bank_account_number',
@@ -33,6 +34,20 @@ class User extends Authenticatable implements MustVerifyEmail
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
+
+    protected $attributes = [
+        'role' => 'user',
+    ];
+
+    public function isAdmin(): bool
+    {
+        return isset($this->role) && $this->role === 'admin';
+    }
+
+    public function isUser(): bool
+    {
+        return !isset($this->role) || $this->role === 'user';
+    }
 
     public function scopeSearch($query, $value): void
     {

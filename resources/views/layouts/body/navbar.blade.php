@@ -4,6 +4,7 @@
         <div class="navbar">
             <div class="container-xl">
                 <ul class="navbar-nav">
+                    @if(auth()->user()->isAdmin())
                     <li class="nav-item {{ request()->is('dashboard*') ? 'active' : null }}">
                         <a class="nav-link" href="{{ route('dashboard') }}" >
                             <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
@@ -149,6 +150,45 @@
                             </div>
                         </div>
                     </li>
+                    @else
+                    <!-- Menu cho nhân viên bán hàng (User) -->
+                    <li class="nav-item {{ request()->is('pos*') ? 'active' : null }}">
+                        <a class="nav-link" href="{{ route('pos.index') }}" >
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-point" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" /></svg>
+                            </span>
+                            <span class="nav-link-title">
+                                {{ __('Point of Sale') }}
+                            </span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item dropdown {{ request()->is('orders*') ? 'active' : null }}">
+                        <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-package-export" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 21l-8 -4.5v-9l8 -4.5l8 4.5v4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12v9" /><path d="M12 12l-8 -4.5" /><path d="M15 18h7" /><path d="M19 15l3 3l-3 3" /></svg>
+                            </span>
+                            <span class="nav-link-title">
+                                {{ __('Orders') }}
+                            </span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="{{ route('orders.index') }}">
+                                        {{ __('All Orders') }}
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('orders.complete') }}">
+                                        {{ __('Completed') }}
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('orders.pending') }}">
+                                        {{ __('Pending') }}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    @endif
 
                 </ul>
             </div>
