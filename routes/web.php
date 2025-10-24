@@ -66,7 +66,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/products/import', [ProductImportController::class, 'create'])->name('products.import.view');
     Route::post('/products/import', [ProductImportController::class, 'import'])->name('products.import');
     Route::get('/products/export', [ProductExportController::class, 'create'])->name('products.export');
-    Route::post('/products/{product}/update-price', [ProductController::class, 'updatePrice'])->name('products.updatePrice');
+    Route::post('/products/{id}/ajax-update', [ProductController::class, 'ajaxUpdate'])->name('products.ajaxUpdate');
     Route::resource('/products', ProductController::class);
 
     // Route Orders

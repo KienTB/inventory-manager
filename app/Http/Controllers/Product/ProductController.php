@@ -11,50 +11,50 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Picqer\Barcode\BarcodeGeneratorHTML;
 
 class ProductController extends Controller
 {
-    /**
-     * Danh sách sản phẩm
-     */
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'unit']);
+        $query = Product::with([
+            'category', 
+            'unit',
+            'productUnits.unit'  
+        ]);
         
-        // Lọc theo tên hoặc mã sản phẩm
         if ($request->search) {
             $query->where('name', 'like', '%' . $request->search . '%')
                 ->orWhere('code', 'like', '%' . $request->search . '%');
         }
         
-        // Lọc theo danh mục
         if ($request->category) {
             $query->where('category_id', $request->category);
         }
         
-        // Lọc theo thương hiệu
         if ($request->brand) {
             $query->where('brand', 'like', '%' . $request->brand . '%');
         }
         
-        // Lọc theo khoảng giá
         if ($request->price_min) {
             $query->where('selling_price', '>=', $request->price_min);
         }
         if ($request->price_max) {
             $query->where('selling_price', '<=', $request->price_max);
         }
+
+        if ($request->stock_status === 'out_of_stock') {
+            $query->where('quantity', '<=', 0);
+        }
         
         $products = $query->paginate(15);
-        $categories = Category::all(); // Để hiển thị trong dropdown lọc
+        $categories = Category::all(); 
+        $units = Unit::all();
         
-        return view('products.index', compact('products', 'categories'));
+        return view('products.index', compact('products', 'categories', 'units'));
     }
 
-    /**
-     * Hiển thị form tạo sản phẩm
-     */
     public function create(Request $request)
     {
         $categories = Category::all(['id', 'name']);
@@ -71,9 +71,6 @@ class ProductController extends Controller
         return view('products.create', compact('categories', 'units'));
     }
 
-    /**
-     * Lưu sản phẩm mới
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -95,32 +92,21 @@ class ProductController extends Controller
 
         try {
             DB::beginTransaction();
-
-            // 🔹 Sinh mã sản phẩm tự động
             $productCode = $this->generateProductCode();
-
-            // 🔹 Chuẩn bị dữ liệu lưu
             $productData = $request->only([
                 'name', 'slug', 'code', 'product_code', 'brand', 'location',
                 'commission', 'weight', 'quantity', 'buying_price', 'selling_price',
                 'quantity_alert', 'tax', 'tax_type', 'notes', 'category_id', 'unit_id',
             ]);
-
-            // 🔹 Tạo slug và code nếu chưa có
             $productData['slug'] = $productData['slug'] ?? Str::slug($productData['name']);
             $productData['code'] = $productData['code'] ?? $productCode;
-
             $product = Product::create($productData);
-
-            // 🔹 Upload ảnh nếu có
             if ($request->hasFile('product_image')) {
                 $image = $request->file('product_image');
                 $imageName = time() . '.' . $image->extension();
                 $image->storeAs('products', $imageName, 'public');
                 $product->update(['product_image' => $imageName]);
             }
-
-            // 🔑 Thêm đơn vị cơ bản (base unit)
             $product->productUnits()->create([
                 'unit_id' => $product->unit_id,
                 'conversion_rate' => 1,
@@ -128,8 +114,6 @@ class ProductController extends Controller
                 'selling_price' => $product->selling_price * 100,
                 'is_base_unit' => 1,
             ]);
-
-            // 🔑 Thêm các đơn vị phụ nếu có
             if ($request->has('product_units')) {
                 foreach ($request->product_units as $unitData) {
                     if (!empty($unitData['unit_id'])) {
@@ -145,9 +129,7 @@ class ProductController extends Controller
                     }
                 }
             }
-
             DB::commit();
-
             return redirect()
                 ->route('products.index')
                 ->with('success', 'Sản phẩm đã được tạo thành công!');
@@ -157,51 +139,90 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Hiển thị chi tiết sản phẩm
-     */
-    public function show(Product $product)
+    public function show($id)
     {
-        $product->load(['category', 'unit', 'productUnits.unit']);
-        $generator = new BarcodeGeneratorHTML();
-        $barcode = $generator->getBarcode($product->code, $generator::TYPE_CODE_128);
-        return view('products.show', compact('product', 'barcode'));
+        try {
+            $product = Product::with(['category', 'unit', 'productUnits.unit'])->findOrFail($id);
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'code' => $product->code,
+                    'product_code' => $product->product_code,
+                    'brand' => $product->brand,
+                    'location' => $product->location,
+                    'commission' => $product->commission,
+                    'weight' => $product->weight,
+                    'quantity' => $product->quantity,
+                    'buying_price' => (float) $product->buying_price,
+                    'selling_price' => (float) $product->selling_price,
+                    'quantity_alert' => $product->quantity_alert,
+                    'tax' => $product->tax,
+                    'notes' => $product->notes,
+                    'category_id' => $product->category_id,
+                    'unit_id' => $product->unit_id,
+                    'category' => $product->category,
+                    'unit' => $product->unit,
+                    'product_units' => $product->productUnits->map(function($pu) {
+                        return [
+                            'id' => $pu->id,
+                            'unit_id' => $pu->unit_id,
+                            'unit' => $pu->unit,
+                            'barcode' => $pu->barcode,
+                            'conversion_rate' => $pu->conversion_rate,
+                            'selling_price' => $pu->selling_price,
+                            'is_base_unit' => $pu->is_base_unit,
+                        ];
+                    }),
+                ]);
+            }
+
+            $generator = new BarcodeGeneratorHTML();
+            $barcode = $generator->getBarcode($product->code, $generator::TYPE_CODE_128);
+            return view('products.show', compact('product', 'barcode'));
+        } catch (\Exception $e) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy sản phẩm: ' . $e->getMessage()
+                ], 404);
+            }
+            return redirect()->route('products.index')->with('error', 'Không tìm thấy sản phẩm');
+        }
     }
 
-    /**
-     * Hiển thị form chỉnh sửa sản phẩm
-     */
     public function edit(Product $product)
     {
+        $product->load(['category', 'unit', 'productUnits.unit']);
+        
         $categories = Category::all();
         $units = Unit::all();
         $productUnits = $product->productUnits()->where('is_base_unit', false)->get();
+        
         return view('products.edit', compact('product', 'categories', 'units', 'productUnits'));
     }
 
-    /**
-     * Cập nhật sản phẩm
-     */
     public function update(Request $request, Product $product)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255',
-            'code' => 'nullable|string|max:255|unique:products,code,' . $product->id,
-            'product_code' => 'nullable|string|max:255',
-            'brand' => 'nullable|string|max:255',
-            'location' => 'nullable|string|max:255',
-            'commission' => 'nullable|numeric|min:0',
-            'weight' => 'nullable|numeric|min:0',
-            'quantity' => 'required|integer|min:0',
-            'buying_price' => 'required|integer|min:0',
-            'selling_price' => 'required|integer|min:0',
-            'quantity_alert' => 'nullable|integer|min:0',
-            'category_id' => 'required|integer|exists:categories,id',
-            'unit_id' => 'required|integer|exists:units,id',
-        ]);
-
         try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'slug' => 'nullable|string|max:255',
+                'code' => 'nullable|string|max:255|unique:products,code,' . $product->id,
+                'product_code' => 'nullable|string|max:255',
+                'brand' => 'nullable|string|max:255',
+                'location' => 'nullable|string|max:255',
+                'commission' => 'nullable|numeric|min:0',
+                'weight' => 'nullable|numeric|min:0',
+                'quantity' => 'required|integer|min:0',
+                'buying_price' => 'required|integer|min:0',
+                'selling_price' => 'required|integer|min:0',
+                'quantity_alert' => 'nullable|integer|min:0',
+                'category_id' => 'required|integer|exists:categories,id',
+                'unit_id' => 'required|integer|exists:units,id',
+            ]);
+
             DB::beginTransaction();
 
             $productData = $request->only([
@@ -211,7 +232,6 @@ class ProductController extends Controller
             ]);
 
             $productData['slug'] = $productData['slug'] ?? Str::slug($productData['name']);
-
             $product->update($productData);
 
             if ($request->hasFile('product_image')) {
@@ -225,7 +245,6 @@ class ProductController extends Controller
             }
 
             $product->productUnits()->where('is_base_unit', 0)->delete();
-
             if ($request->has('product_units')) {
                 foreach ($request->product_units as $unitData) {
                     if (!empty($unitData['unit_id'])) {
@@ -260,11 +279,39 @@ class ProductController extends Controller
 
             DB::commit();
 
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Sản phẩm đã được cập nhật thành công!',
+                    'product' => $product->load(['category', 'unit', 'productUnits.unit'])
+                ]);
+            }
+
             return redirect()
                 ->route('products.index')
                 ->with('success', 'Sản phẩm đã được cập nhật thành công!');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dữ liệu không hợp lệ',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            return back()->withErrors($e->errors())->withInput();
+
         } catch (\Exception $e) {
             DB::rollBack();
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Lỗi khi cập nhật sản phẩm: ' . $e->getMessage()
+                ], 500);
+            }
             return back()->withInput()->with('error', 'Lỗi khi cập nhật sản phẩm: ' . $e->getMessage());
         }
     }
@@ -282,34 +329,132 @@ class ProductController extends Controller
             ->with('success', 'Sản phẩm đã được xóa thành công!');
     }
 
-       private function generateProductCode()
+    private function generateProductCode()
     {
         $lastProduct = Product::orderBy('id', 'desc')->first();
         $number = $lastProduct ? intval(substr($lastProduct->code, 3)) + 1 : 1;
         return 'PRD' . str_pad($number, 5, '0', STR_PAD_LEFT);
     }
 
-    public function updatePrice(Request $request, $productId)
+    public function ajaxUpdate(Request $request, $id)
     {
+        $product = Product::with(['category', 'unit', 'productUnits.unit'])->findOrFail($id);
+        
+        Log::info('AJAX Update called', [
+            'product_id' => $product->id,
+            'request_data' => $request->all()
+        ]);
+
         try {
-            $product = Product::findOrFail($productId);
             $validated = $request->validate([
-                'buying_price' => 'nullable|numeric|min:0',
-                'selling_price' => 'required|numeric|min:0',
-                'commission' => 'nullable|numeric|min:0|max:100',
-                'tax' => 'nullable|numeric|min:0|max:100',
+                'name' => 'required|string|max:255',
+                'slug' => 'nullable|string|max:255',
+                'code' => 'nullable|string|max:255|unique:products,code,' . $product->id,
+                'product_code' => 'nullable|string|max:255',
+                'brand' => 'nullable|string|max:255',
+                'location' => 'nullable|string|max:255',
+                'commission' => 'nullable|numeric|min:0',
+                'weight' => 'nullable|numeric|min:0',
+                'quantity' => 'required|integer|min:0',
+                'buying_price' => 'required|integer|min:0',
+                'selling_price' => 'required|integer|min:0',
+                'quantity_alert' => 'nullable|integer|min:0',
+                'category_id' => 'required|integer|exists:categories,id',
+                'unit_id' => 'required|integer|exists:units,id',
             ]);
-            $updateData = array_filter($validated, fn($v) => $v !== null && $v !== '');
-            $product->update($updateData);
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['success' => true, 'message' => 'Cập nhật giá thành công!']);
+
+            DB::beginTransaction();
+
+            $productData = [
+                'name' => $request->name,
+                'slug' => $request->slug ?? Str::slug($request->name),
+                'code' => $request->code ?? $product->code,
+                'product_code' => $request->product_code,
+                'brand' => $request->brand,
+                'location' => $request->location,
+                'commission' => $request->commission,
+                'weight' => $request->weight,
+                'quantity' => $request->quantity,
+                'buying_price' => $request->buying_price,
+                'selling_price' => $request->selling_price,
+                'quantity_alert' => $request->quantity_alert,
+                'tax' => $request->tax,
+                'tax_type' => $request->tax_type,
+                'notes' => $request->notes,
+                'category_id' => $request->category_id,
+                'unit_id' => $request->unit_id,
+            ];
+
+            $product->update($productData);
+            Log::info('Product updated', ['product' => $product->toArray()]);
+
+            if ($request->hasFile('product_image')) {
+                if ($product->product_image) {
+                    Storage::disk('public')->delete('products/' . $product->product_image);
+                }
+                $image = $request->file('product_image');
+                $imageName = time() . '.' . $image->extension();
+                $image->storeAs('products', $imageName, 'public');
+                $product->update(['product_image' => $imageName]);
             }
-            return redirect()->route('products.index')->with('success', 'Cập nhật giá thành công!');
+
+            $product->productUnits()->where('is_base_unit', 0)->delete();
+            if ($request->has('product_units')) {
+                foreach ($request->product_units as $unitData) {
+                    if (!empty($unitData['unit_id'])) {
+                        $product->productUnits()->create([
+                            'unit_id' => $unitData['unit_id'],
+                            'conversion_rate' => $unitData['conversion_rate'] ?? 1,
+                            'barcode' => $unitData['barcode'] ?? null,
+                            'selling_price' => isset($unitData['selling_price'])
+                                ? (int)($unitData['selling_price'] * 100)
+                                : 0,
+                            'is_base_unit' => 0,
+                        ]);
+                    }
+                }
+            }
+
+            $baseUnit = $product->productUnits()->where('is_base_unit', 1)->first();
+            if ($baseUnit) {
+                $baseUnit->update([
+                    'unit_id' => $product->unit_id,
+                    'selling_price' => $product->selling_price * 100,
+                ]);
+            } else {
+                $product->productUnits()->create([
+                    'unit_id' => $product->unit_id,
+                    'conversion_rate' => 1,
+                    'barcode' => $product->code,
+                    'selling_price' => $product->selling_price * 100,
+                    'is_base_unit' => 1,
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sản phẩm đã được cập nhật thành công!',
+                'product' => $product->fresh(['category', 'unit', 'productUnits.unit'])
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            Log::error('Validation error', ['errors' => $e->errors()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $e->errors()
+            ], 422);
+
         } catch (\Exception $e) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
-            }
-            return back()->with('error', 'Lỗi: ' . $e->getMessage());
+            DB::rollBack();
+            Log::error('Update error', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi cập nhật sản phẩm: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

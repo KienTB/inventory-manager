@@ -1,5 +1,3 @@
-{{-- resources/views/products/edit.blade.php --}}
-
 @extends('layouts.tabler')
 
 @section('content')
@@ -26,7 +24,6 @@
                 @method('PUT')
 
                 <div class="row">
-                    {{-- Cột trái: Ảnh sản phẩm --}}
                     <div class="col-lg-4">
                         <div class="card">
                             <div class="card-body text-center">

@@ -129,7 +129,7 @@
                                     </tr>
                                     <tr>
                                         <td class="fw-bold">Loại thuế</td>
-                                        <td>{{ $product->tax_type->label() }}</td>
+                                        <td>{{ $product->tax_type?->label() ?? 'Chưa xác định' }}</td>
                                     </tr>
                                     <tr>
                                         <td class="fw-bold">Ghi chú</td>
