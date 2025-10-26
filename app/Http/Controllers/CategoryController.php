@@ -28,7 +28,7 @@ class CategoryController extends Controller
 
         return redirect()
             ->route('categories.index')
-            ->with('success', 'Category has been created!');
+            ->with('success', 'Đã tạo danh mục thành công!');
     }
 
     public function show(Category $category)
@@ -51,7 +51,7 @@ class CategoryController extends Controller
 
         return redirect()
             ->route('categories.index')
-            ->with('success', 'Category has been updated!');
+            ->with('success', 'Đã cập nhật danh mục thành công!');
     }
 
     public function destroy(Category $category)
@@ -60,6 +60,6 @@ class CategoryController extends Controller
 
         return redirect()
             ->route('categories.index')
-            ->with('success', 'Category has been deleted!');
+            ->with('success', 'Đã xóa danh mục thành công!');
     }
 }

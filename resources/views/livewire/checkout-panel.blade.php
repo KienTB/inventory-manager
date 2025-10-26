@@ -53,13 +53,20 @@
                 </div>
             </template>
 
-            <form method="POST" action="{{ route('pos.checkout') }}" class="mt-3">
+            <form method="POST" action="{{ route('pos.checkout') }}" class="mt-3" onsubmit="this.querySelector('button[type=submit]').disabled=true; this.querySelector('button[type=submit]').innerHTML='<span class=\'spinner-border spinner-border-sm me-2\'></span>Đang xử lý...';">
                 @csrf
                 <input type="hidden" name="customer_id" value="{{ $customer_id }}" />
                 <input type="hidden" name="cart_instance" value="{{ $cartInstance }}" />
                 <input type="hidden" name="payment_type" :value="$wire.payment_method === 'bank' ? 'BankTransfer' : 'HandCash'" />
                 <input type="hidden" name="pay" value="{{ $received ?? $this->total }}" />
-                <button class="btn btn-primary w-100" type="submit">THANH TOÁN</button>
+                <button class="btn btn-primary w-100" type="submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-credit-card" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z"/>
+                        <path d="M8 9l4 4l4 -4"/>
+                    </svg>
+                    THANH TOÁN
+                </button>
             </form>
         </div>
     </div>

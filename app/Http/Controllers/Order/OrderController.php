@@ -64,7 +64,8 @@ class OrderController extends Controller
         // Xóa discount khỏi session
         session()->forget('discount_' . $cartInstance);
 
-        return redirect()->route('pos.index')->with('success', 'Đã tạo đơn hàng thành công!');
+        // Redirect đến trang thành công thay vì trực tiếp download invoice
+        return redirect()->route('orders.success', $order->id)->with('success', 'Thanh toán thành công!');
     }
 
     public function show(Order $order)
@@ -94,7 +95,7 @@ class OrderController extends Controller
 
         return redirect()
             ->route('orders.complete')
-            ->with('success', 'Order has been completed!');
+            ->with('success', 'Đơn hàng đã được hoàn thành!');
     }
 
     public function destroy(Order $order)
@@ -102,13 +103,21 @@ class OrderController extends Controller
         $order->delete();
     }
 
-    public function downloadInvoice($order)
+    public function downloadInvoice(Order $order)
     {
-        $order = Order::with(['details'])
-            ->where('id', $order)
-            ->firstOrFail();
+        $order->loadMissing(['details']);
 
         return view('orders.print-invoice', [
+            'order' => $order,
+            'settings' => \App\Models\Setting::getSettings(),
+        ]);
+    }
+
+    public function success(Order $order)
+    {
+        $order->loadMissing(['details', 'customer']);
+
+        return view('orders.success', [
             'order' => $order,
         ]);
     }

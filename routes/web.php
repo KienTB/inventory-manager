@@ -18,7 +18,7 @@ use App\Http\Controllers\Quotation\QuotationController;
 use App\Http\Controllers\Dashboards\DashboardController;
 use App\Http\Controllers\Product\ProductExportController;
 use App\Http\Controllers\Product\ProductImportController;
-use App\Http\Controllers\PosController;
+use App\Http\Controllers\SettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,7 +68,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.store');
     Route::put('/orders/update/{order}', [OrderController::class, 'update'])->name('orders.update');
 
-    Route::post('/invoice/create', [InvoiceController::class, 'create'])->name('invoice.create');
+    // Settings - Cấu hình cửa hàng
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 
     // DUES - Admin có thể chỉnh sửa đơn hàng nợ
     Route::get('/due/order/edit/{order}', [DueOrderController::class, 'edit'])->name('due.edit');
@@ -104,7 +106,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 
     // Download invoice - Cả admin và user đều có thể tải
-    Route::get('/orders/details/{order_id}/download', [OrderController::class, 'downloadInvoice'])->name('order.downloadInvoice');
+    Route::get('/orders/details/{order}/download', [OrderController::class, 'downloadInvoice'])->name('order.downloadInvoice');
+
+    // Order success page - Cả admin và user đều có thể xem
+    Route::get('/orders/{order}/success', [OrderController::class, 'success'])->name('orders.success');
 
     // Purchases - User chỉ có thể xem, không thể chỉnh sửa
     Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
