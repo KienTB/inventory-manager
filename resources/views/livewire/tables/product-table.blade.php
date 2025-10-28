@@ -111,7 +111,7 @@
                         {{ $product->code }}
                     </td>
                     <td class="align-middle text-center">
-                        {{ $product->category->name }}
+                        {{ $product->category_name }}
                     </td>
                     <td class="align-middle text-center">
                         {{ $product->quantity }}

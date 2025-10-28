@@ -137,6 +137,9 @@
                         <div class="dropdown-menu">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="{{ route('settings.index') }}">
+                                        {{ __('Cấu hình cửa hàng') }}
+                                    </a>
                                     <a class="dropdown-item" href="{{ route('users.index') }}">
                                         {{ __('Users') }}
                                     </a>

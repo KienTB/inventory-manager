@@ -42,7 +42,7 @@ class CustomerController extends Controller
 
         return redirect()
             ->route('customers.index')
-            ->with('success', 'New customer has been created!');
+            ->with('success', 'Đã tạo khách hàng mới thành công!');
     }
 
     public function show(Customer $customer)
@@ -88,7 +88,7 @@ class CustomerController extends Controller
 
         return redirect()
             ->route('customers.index')
-            ->with('success', 'Customer has been updated!');
+            ->with('success', 'Đã cập nhật khách hàng thành công!');
     }
 
     public function destroy(Customer $customer)
@@ -102,6 +102,6 @@ class CustomerController extends Controller
 
         return redirect()
             ->back()
-            ->with('success', 'Customer has been deleted!');
+            ->with('success', 'Đã xóa khách hàng thành công!');
     }
 }
