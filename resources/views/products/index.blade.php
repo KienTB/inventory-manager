@@ -1071,16 +1071,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.addEventListener('input', function(e) {
         if (e.target.classList.contains('format-price')) {
-            let value = e.target.value.replace(/,/g, '');  // Loại bỏ tất cả dấu phẩy cũ
-            // Chỉ cho phép số (prevent non-numeric input)
+            let value = e.target.value.replace(/,/g, '');  
             if (!/^\d*$/.test(value)) {
-                e.target.value = value.replace(/[^\d]/g, '');  // Xóa ký tự không phải số
+                e.target.value = value.replace(/[^\d]/g, '');  
                 value = e.target.value.replace(/,/g, '');
             }
             if (value !== '' && !isNaN(value)) {
-                e.target.value = numberFormat(parseInt(value, 10));  // Format integer, dùng parseInt để tránh decimal
+                e.target.value = numberFormat(parseInt(value, 10));  
             } else if (value === '') {
-                e.target.value = '';  // Cho phép xóa hết
+                e.target.value = '';  
             }
         }
     });
@@ -1143,6 +1142,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('edit-product-image').value = '';
     
         document.getElementById('edit-product-code').value = product.product_code || '';
+        document.getElementById('edit-code').value = product.code || '';
         document.getElementById('edit-brand').value = product.brand || '';
         document.getElementById('edit-location').value = product.location || '';
         document.getElementById('edit-weight').value = product.weight || '';
@@ -1219,7 +1219,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
 
-                        <!-- Cột mã vạch -->
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label">Mã vạch</label>
