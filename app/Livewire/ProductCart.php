@@ -11,6 +11,8 @@ class ProductCart extends Component
     public $listeners = ['productSelected', 'discountModalRefresh', 'tabChanged'];
 
     public $cart_instance;
+    
+    public $cartInstance; // Property để nhận prop từ parent (Livewire map :cart-instance vào đây)
 
     public $activeCartInstance = 'order';
 
@@ -34,6 +36,7 @@ class ProductCart extends Component
 
     public function mount($cartInstance, $data = null): void
     {
+        $this->cartInstance = $cartInstance; // Set property để Livewire track
         $this->activeCartInstance = $cartInstance;
         $this->cart_instance = $cartInstance;
 
@@ -73,8 +76,21 @@ class ProductCart extends Component
         }
     }
 
+    public function updatedCartInstance()
+    {
+        // Khi cartInstance prop thay đổi trực tiếp (từ parent component)
+        // Livewire map :cart-instance prop vào $cartInstance property (camelCase)
+        // Sync với $cart_instance và $activeCartInstance
+        if ($this->cartInstance && $this->cartInstance !== $this->activeCartInstance) {
+            $this->cart_instance = $this->cartInstance;
+            $this->activeCartInstance = $this->cartInstance;
+            $this->syncCartData();
+        }
+    }
+
     public function tabChanged($newTabId): void
     {
+        $this->cartInstance = $newTabId; // Sync property
         $this->activeCartInstance = $newTabId;
         $this->cart_instance = $newTabId;
         $this->syncCartData();
@@ -156,6 +172,9 @@ class ProductCart extends Component
 
         // Thông báo cập nhật tổng tiền
         $this->dispatch('cartUpdated');
+        
+        // Thông báo để reset search query
+        $this->dispatch('productAdded');
     }
 
     public function removeItem($row_id): void
