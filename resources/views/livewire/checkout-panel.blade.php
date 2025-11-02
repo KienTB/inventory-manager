@@ -31,9 +31,9 @@
                 <label class="form-check-label" for="pm-bank">Chuyển khoản</label>
             </div>
 
-            <div class="mt-3" x-data="{ amount: @entangle('received') }">
+            <div class="mt-3">
                 <div class="mb-2">Khách thanh toán</div>
-                <input type="number" step="1000" min="0" class="form-control" x-model.number="amount" placeholder="Nhập số tiền khách đưa">
+                <input type="number" step="1000" min="0" class="form-control" wire:model.live="received" placeholder="Nhập số tiền khách đưa">
                 <div class="mt-2 d-flex flex-wrap gap-2 pos-quick-amounts">
                     <button type="button" class="btn btn-outline-secondary" wire:click="quickFill(50000)">50,000</button>
                     <button type="button" class="btn btn-outline-secondary" wire:click="quickFill(100000)">100,000</button>
@@ -42,7 +42,7 @@
                 </div>
             </div>
 
-            <template x-if="$wire.payment_method === 'bank'">
+            @if($this->payment_method === 'bank')
                 <div class="mt-3 text-center">
                     <div class="mb-2">Quét mã để thanh toán</div>
                     @if ($this->vietQrUrl)
@@ -51,14 +51,14 @@
                         <div class="text-muted small">Vui lòng cập nhật ngân hàng và số tài khoản trong trang hồ sơ.</div>
                     @endif
                 </div>
-            </template>
+            @endif
 
             <form method="POST" action="{{ route('pos.checkout') }}" class="mt-3" onsubmit="this.querySelector('button[type=submit]').disabled=true; this.querySelector('button[type=submit]').innerHTML='<span class=\'spinner-border spinner-border-sm me-2\'></span>Đang xử lý...';">
                 @csrf
                 <input type="hidden" name="customer_id" value="{{ $customer_id }}" />
                 <input type="hidden" name="cart_instance" value="{{ $cartInstance }}" />
                 <input type="hidden" name="payment_type" :value="$wire.payment_method === 'bank' ? 'BankTransfer' : 'HandCash'" />
-                <input type="hidden" name="pay" value="{{ $received ?? $this->total }}" />
+                <input type="hidden" name="pay" value="{{ $this->received > 0 ? $this->received : $this->total }}" />
                 <button class="btn btn-primary w-100" type="submit">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-credit-card" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
