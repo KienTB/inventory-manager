@@ -380,8 +380,8 @@
                                             </svg>
                                         </th>
                                         <th style="width: 80px;" data-column="image">Hình</th>
-                                        <th data-column="code">Mã hàng</th>
-                                        <th data-column="name">Tên hàng</th>
+                                        <th data-column="code">Mã vạch</th>
+                                        <th data-column="name">Tên sản phẩm</th>
                                         <th data-column="selling-price">Giá bán</th>
                                         <th data-column="buying-price">Giá vốn</th>
                                         <th data-column="quantity">Tồn kho</th>
@@ -422,10 +422,10 @@
                                                 @endif
                                             </td>
                                             <td data-column="selling-price">
-                                                <span class="fw-semibold">{{ number_format($product->selling_price, 0, ',', '.') }}</span>
+                                                <span class="fw-semibold">{{ number_format($product->selling_price, 0, '.', ',') }}</span>
                                             </td>
                                             <td data-column="buying-price">
-                                                <span class="text-muted">{{ number_format($product->buying_price ?? 0, 0, ',', '.') }}</span>
+                                                <span class="text-muted">{{ number_format($product->buying_price ?? 0, 0, '.', ',') }}</span>
                                             </td>
                                             <td data-column="quantity">
                                                 @if($product->quantity <= ($product->quantity_alert ?? 0))
@@ -459,24 +459,37 @@
                                                 <div class="card mb-0 border-0 shadow-none">
                                                     <div class="card-body bg-light">
                                                         <div class="row g-4">
-                                                            <div class="col-md-9">
+                                                            <div class="col-md-2 col-12 text-center">
+                                                                <div class="mb-3">
+                                                                    <img src="{{ $product->product_image ? asset('storage/' . $product->product_image) : asset('assets/img/products/default.webp') }}" 
+                                                                        alt="{{ $product->name }}" 
+                                                                        class="img-fluid rounded shadow-sm" 
+                                                                        style="max-height: 120px; width: auto; object-fit: cover;">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-md-10">
                                                                 <div class="row g-3">
                                                                     <div class="col-md-4">
                                                                         <div class="mb-3">
-                                                                            <small class="text-muted d-block mb-1">Mã sản phẩm</small>
+                                                                            <small class="text-muted d-block mb-1">Tên sản phẩm</small>
+                                                                            <strong>{{ $product->name }}</strong>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <small class="text-muted d-block mb-1">Mã vạch</small>
                                                                             <strong>{{ $product->code }}</strong>
                                                                         </div>
                                                                         <div class="mb-3">
                                                                             <small class="text-muted d-block mb-1">Mã hàng</small>
                                                                             <strong>{{ $product->product_code ?? '-' }}</strong>
                                                                         </div>
+                                                                    </div>
+                                                                    
+                                                                    <div class="col-md-4">
                                                                         <div class="mb-3">
                                                                             <small class="text-muted d-block mb-1">Danh mục</small>
                                                                             <span class="badge bg-blue-lt">{{ $product->category->name ?? '-' }}</span>
                                                                         </div>
-                                                                    </div>
-                                                                    
-                                                                    <div class="col-md-4">
                                                                         <div class="mb-3">
                                                                             <small class="text-muted d-block mb-1">Thương hiệu</small>
                                                                             <strong>{{ $product->brand ?? 'Chưa có' }}</strong>
@@ -485,26 +498,16 @@
                                                                             <small class="text-muted d-block mb-1">Vị trí</small>
                                                                             <strong>{{ $product->location ?? 'Chưa có' }}</strong>
                                                                         </div>
-                                                                        <div class="mb-3">
-                                                                            <small class="text-muted d-block mb-1">Trọng lượng</small>
-                                                                            <strong>{{ $product->weight ? $product->weight . ' kg' : '0.05 kg' }}</strong>
-                                                                        </div>
                                                                     </div>
 
                                                                     <div class="col-md-4">
                                                                         <div class="mb-3">
-                                                                            <small class="text-muted d-block mb-1">Đơn vị tính</small>
-                                                                            @if($product->productUnits && $product->productUnits->count() > 0)
-                                                                                @foreach($product->productUnits as $pu)
-                                                                                    <span class="badge bg-azure-lt me-1">{{ $pu->unit->short_code ?? $pu->unit->name }}</span>
-                                                                                @endforeach
-                                                                            @else
-                                                                                <span class="badge bg-gray-lt">pc</span>
-                                                                            @endif
-                                                                        </div>
-                                                                        <div class="mb-3">
                                                                             <small class="text-muted d-block mb-1">Cảnh báo tồn kho</small>
                                                                             <span class="badge bg-red-lt">{{ $product->quantity_alert ?? 10 }}</span>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <small class="text-muted d-block mb-1">Trọng lượng</small>
+                                                                            <strong>{{ $product->weight ? $product->weight . ' kg' : '0.05 kg' }}</strong>
                                                                         </div>
                                                                     </div>
 
@@ -512,11 +515,11 @@
                                                                         <div class="row g-3">
                                                                             <div class="col-md-3">
                                                                                 <small class="text-muted d-block mb-1">Giá nhập</small>
-                                                                                <strong class="text-primary">{{ number_format($product->buying_price, 0, ',', '.') }} đ</strong>
+                                                                                <strong class="text-primary">{{ number_format($product->buying_price, 0, '.', ',') }} đ</strong>
                                                                             </div>
                                                                             <div class="col-md-3">
                                                                                 <small class="text-muted d-block mb-1">Giá bán</small>
-                                                                                <strong class="text-success">{{ number_format($product->selling_price, 0, ',', '.') }} đ</strong>
+                                                                                <strong class="text-success">{{ number_format($product->selling_price, 0, '.', ',') }} đ</strong>
                                                                             </div>
                                                                             <div class="col-md-3">
                                                                                 <small class="text-muted d-block mb-1">Hoa hồng</small>
@@ -537,12 +540,13 @@
                                                                     @endif
                                                                 </div>
                                                             </div>
+                                                        </div>
 
-                                                            <div class="col-md-3">
-                                                                <div class="d-flex flex-column gap-2 h-100 justify-content-center">
+                                                            <div class="col-12 mt-3 pt-3 border-top">
+                                                                <div class="d-flex gap-2 justify-content-end">
                                                                     <a href="{{ route('products.edit', $product) }}" 
                                                                         data-product-id="{{ $product->id }}"
-                                                                        class="btn btn-primary w-100">
+                                                                        class="btn btn-outline-primary">
                                                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                                                             <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
@@ -555,7 +559,7 @@
                                                                     <form action="{{ route('products.destroy', $product) }}" method="POST" onsubmit="return confirm('Bạn chắc chắn muốn xoá sản phẩm này?')">
                                                                         @csrf
                                                                         @method('DELETE')
-                                                                        <button type="submit" class="btn btn-outline-danger w-100">
+                                                                        <button type="submit" class="btn btn-outline-danger">
                                                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                                                                 <path d="M4 7l16 0" />
@@ -630,6 +634,15 @@
 </div>
 
 <script>
+    function numberFormat(num) {
+    if (!num && num !== 0) return '0';
+    return parseFloat(num).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+// Hàm parse chuỗi có dấu phẩy thành số (VD: '1,000,000' -> 1000000)
+function parseNumber(str) {
+    return parseFloat(str.replace(/,/g, '')) || 0;
+}
     document.addEventListener('DOMContentLoaded', function() {
         const stockCustomRadio = document.getElementById('stock_custom');
         const stockCustomDate = document.getElementById('stock_custom_date');
@@ -829,6 +842,7 @@
 
 </style>
 
+
 <div class="modal modal-blur fade" id="editProductModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
         <div class="modal-content">
@@ -845,10 +859,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             
-            <form id="edit-product-form">
+            <form id="edit-product-form" enctype="multipart/form-data">
+                @csrf
                 <input type="hidden" id="edit-product-id" name="product_id">
                 
                 <div class="modal-body">
+                    <!-- Alert Error -->
                     <div class="alert alert-danger d-none" id="edit-error-alert" role="alert">
                         <div class="d-flex">
                             <div>
@@ -866,112 +882,152 @@
                         </div>
                     </div>
 
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <label class="form-label required">Tên sản phẩm</label>
-                            <input type="text" class="form-control" id="edit-name" name="name" required>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Mã hàng</label>
-                            <input type="text" class="form-control" id="edit-product-code" name="product_code">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Thương hiệu</label>
-                            <input type="text" class="form-control" id="edit-brand" name="brand">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Vị trí</label>
-                            <input type="text" class="form-control" id="edit-location" name="location">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Trọng lượng (kg)</label>
-                            <input type="number" step="0.01" class="form-control" id="edit-weight" name="weight">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label required">Danh mục</label>
-                            <select class="form-select" id="edit-category" name="category_id" required>
-                                <option value="">-- Chọn danh mục --</option>
-                                @foreach($categories ?? [] as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label required">Đơn vị chính</label>
-                            <select class="form-select" id="edit-unit" name="unit_id" required>
-                                <option value="">-- Chọn đơn vị --</option>
-                                @foreach($units ?? [] as $unit)
-                                    <option value="{{ $unit->id }}">{{ $unit->name }} ({{ $unit->short_code }})</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label required">Giá nhập</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="edit-buying-price" name="buying_price" required>
-                                <span class="input-group-text">đ</span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label required">Giá bán (đơn vị chính)</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="edit-selling-price" name="selling_price" required>
-                                <span class="input-group-text">đ</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label class="form-label">Hoa hồng (%)</label>
-                            <input type="number" step="0.01" class="form-control" id="edit-commission" name="commission" min="0" max="100">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Thuế (%)</label>
-                            <input type="number" step="0.01" class="form-control" id="edit-tax" name="tax" min="0" max="100">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label required">Tồn kho</label>
-                            <input type="number" class="form-control" id="edit-quantity" name="quantity" min="0" required>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label class="form-label">Cảnh báo tồn kho</label>
-                            <input type="number" class="form-control" id="edit-quantity-alert" name="quantity_alert" min="0">
-                            <small class="form-hint">Hệ thống sẽ cảnh báo khi tồn kho thấp hơn giá trị này</small>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <label class="form-label">Ghi chú</label>
-                            <textarea class="form-control" id="edit-notes" name="notes" rows="3"></textarea>
-                        </div>
-                    </div>
-
                     <div class="row">
-                        <div class="col-12">
-                            <label class="form-label">Đơn vị phụ (tùy chọn)</label>
-                            <small class="text-muted d-block mb-2">Thêm các đơn vị phụ để quy đổi (ví dụ: 1 hộp = 6 cái). Chỉ hiển thị đơn vị không phải đơn vị chính.</small>
-                            
-                            <div id="edit-product-units-container" class="mb-2">
+                        <div class="col-md-3 col-12 mb-3 mb-md-0">
+                            <div class="card h-100 border-0 bg-light">
+                                <div class="card-header bg-transparent border-0 pb-2">
+                                    <h6 class="card-title mb-0 text-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <path d="M15 8h.01" />
+                                            <path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" />
+                                            <path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" />
+                                            <path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" />
+                                        </svg>
+                                        Ảnh sản phẩm
+                                    </h6>
+                                </div>
+                                <div class="card-body text-center p-3">
+                                    <div class="mb-3">
+                                        <img
+                                            class="img-fluid rounded shadow-sm"
+                                            src="{{ asset('assets/img/products/default.webp') }}"
+                                            id="edit-image-preview"
+                                            alt="Preview"
+                                            style="max-width: 100%; max-height: 200px; width: auto; height: auto; object-fit: cover;"
+                                        >
+                                    </div>
+                                    
+                                    <div class="small text-muted mb-2">
+                                        JPG, PNG, WEBP<br>(max 2MB)
+                                    </div>
+                                    
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        id="edit-product-image"
+                                        name="product_image"
+                                        class="form-control form-control-sm @error('product_image') is-invalid @enderror"
+                                        onchange="previewEditImage(event);"
+                                    >
+                                    @error('product_image')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
-                            
+                        </div>
+
+                        <div class="col-md-9 col-12">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label required">Tên sản phẩm</label>
+                                    <input type="text" class="form-control" id="edit-name" name="name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label required">Mã vạch</label>
+                                    <input type="text" class="form-control" id="edit-code" name="code">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Mã hàng</label>
+                                    <input type="text" class="form-control" id="edit-product-code" name="product_code">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Thương hiệu</label>
+                                    <input type="text" class="form-control" id="edit-brand" name="brand">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Vị trí</label>
+                                    <input type="text" class="form-control" id="edit-location" name="location">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Trọng lượng (kg)</label>
+                                    <input type="number" step="0.01" class="form-control" id="edit-weight" name="weight">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label required">Danh mục</label>
+                                    <select class="form-select" id="edit-category" name="category_id" required>
+                                        <option value="">-- Chọn danh mục --</option>
+                                        @foreach($categories ?? [] as $cat)
+                                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label required">Đơn vị chính</label>
+                                    <select class="form-select" id="edit-unit" name="unit_id" required>
+                                        <option value="">-- Chọn đơn vị --</option>
+                                        @foreach($units ?? [] as $unit)
+                                            <option value="{{ $unit->id }}">{{ $unit->name }} ({{ $unit->short_code }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label required">Giá nhập</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control format-price" id="edit-buying-price" name="buying_price" required>
+                                        <span class="input-group-text">đ</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label required">Giá bán</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control format-price" id="edit-selling-price" name="selling_price" required>
+                                        <span class="input-group-text">đ</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Hoa hồng (%)</label>
+                                    <input type="number" step="0.01" class="form-control" id="edit-commission" name="commission" min="0" max="100">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Thuế (%)</label>
+                                    <input type="number" step="0.01" class="form-control" id="edit-tax" name="tax" min="0" max="100">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label required">Tồn kho</label>
+                                    <input type="number" class="form-control" id="edit-quantity" name="quantity" min="0" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Cảnh báo tồn kho</label>
+                                <input type="number" class="form-control" id="edit-quantity-alert" name="quantity_alert" min="0">
+                                <small class="form-hint">Hệ thống sẽ cảnh báo khi tồn kho thấp hơn giá trị này</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Ghi chú</label>
+                                <textarea class="form-control" id="edit-notes" name="notes" rows="2"></textarea>
+                            </div>
+
                             <div>
+                                <label class="form-label">Đơn vị phụ (tùy chọn)</label>
+                                <div id="edit-product-units-container" class="mb-2"></div>
                                 <button type="button" id="edit-add-unit-btn" class="btn btn-outline-primary btn-sm">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -1010,6 +1066,21 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const productId = editButton.getAttribute('data-product-id');
             loadProductData(productId);
+        }
+    });
+
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('format-price')) {
+            let value = e.target.value.replace(/,/g, '');  
+            if (!/^\d*$/.test(value)) {
+                e.target.value = value.replace(/[^\d]/g, '');  
+                value = e.target.value.replace(/,/g, '');
+            }
+            if (value !== '' && !isNaN(value)) {
+                e.target.value = numberFormat(parseInt(value, 10));  
+            } else if (value === '') {
+                e.target.value = '';  
+            }
         }
     });
 
@@ -1056,14 +1127,29 @@ document.addEventListener('DOMContentLoaded', function() {
     function fillFormData(product) {
         document.getElementById('edit-product-id').value = product.id;
         document.getElementById('edit-name').value = product.name || '';
+        const imagePreview = document.getElementById('edit-image-preview');
+        console.log('Product image:', product.product_image);
+        if (product.product_image) {
+            if (product.product_image.startsWith('http') || product.product_image.startsWith('/storage')) {
+                imagePreview.src = product.product_image;
+            } else {
+                imagePreview.src = `/storage/${product.product_image}`;
+            }
+        } else {
+            imagePreview.src = '/assets/img/products/default.webp';
+        }
+
+        document.getElementById('edit-product-image').value = '';
+    
         document.getElementById('edit-product-code').value = product.product_code || '';
+        document.getElementById('edit-code').value = product.code || '';
         document.getElementById('edit-brand').value = product.brand || '';
         document.getElementById('edit-location').value = product.location || '';
         document.getElementById('edit-weight').value = product.weight || '';
         document.getElementById('edit-category').value = product.category_id || '';
         document.getElementById('edit-unit').value = product.unit_id || '';
-        document.getElementById('edit-buying-price').value = product.buying_price || 0;
-        document.getElementById('edit-selling-price').value = product.selling_price || 0;
+        document.getElementById('edit-buying-price').value = numberFormat(product.buying_price || 0);
+        document.getElementById('edit-selling-price').value = numberFormat(product.selling_price || 0);
         document.getElementById('edit-commission').value = product.commission || 0;
         document.getElementById('edit-tax').value = product.tax || 0;
         document.getElementById('edit-quantity').value = product.quantity || 0;
@@ -1085,16 +1171,23 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            console.log('📦 Product units data:', data);
-            
-            if (data.product_units && data.product_units.length > 0) {
-                data.product_units.forEach((pu, index) => {
-                    if (!pu.is_base_unit) {
-                        addEditUnitRow(pu, index);
+        if (data.product_units && data.product_units.length > 0) {
+            data.product_units.forEach((pu, index) => {
+                if (!pu.is_base_unit) {
+                    if (!pu.custom_unit_name && pu.unit) {
+                        pu.custom_unit_name = pu.unit.name;
                     }
-                });
-            }
-        })
+                    addEditUnitRow(pu, index);
+                    setTimeout(() => {
+                        const newPriceInput = document.querySelectorAll('.edit-unit-selling-price')[index];
+                        if (newPriceInput) {
+                            newPriceInput.dispatchEvent(new Event('input'));
+                        }
+                    }, 100);
+                }
+            });
+        }
+    })
         .catch(error => {
             console.error('❌ Error loading product units:', error);
         });
@@ -1110,59 +1203,52 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="card">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label required">Đơn vị</label>
-                                <select name="product_units[${rowIndex}][unit_id]" class="form-select" required>
-                                    <option value="">-- Chọn đơn vị --</option>
-                                    ${units.map(unit => `
-                                        <option value="${unit.id}" ${unitData && unitData.unit_id == unit.id ? 'selected' : ''}>
-                                            ${unit.name} (${unit.short_code})
-                                        </option>
-                                    `).join('')}
-                                </select>
+                                <label class="form-label">Tên đơn vị</label>
+                                <input type="text" 
+                                    name="product_units[${rowIndex}][custom_unit_name]" 
+                                    class="form-control edit-unit-name" 
+                                    value="${unitData ? (unitData.custom_unit_name || (unitData.unit ? unitData.unit.name : '')) : ''}" 
+                                    placeholder="Nhập tên đơn vị mới (VD: Hộp, Túi...)" 
+                                    required>
+                                <!-- Hidden input unit_id giữ nguyên -->
+                                <input type="hidden" 
+                                    name="product_units[${rowIndex}][unit_id]" 
+                                    value="${unitData ? unitData.unit_id || '' : ''}">
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="mb-3">
-                                <label class="form-label required">Tỷ lệ quy đổi</label>
-                                <input type="number" 
-                                       name="product_units[${rowIndex}][conversion_rate]" 
-                                       class="form-control edit-conversion-rate" 
-                                       min="1" 
-                                       value="${unitData ? unitData.conversion_rate : 1}" 
-                                       placeholder="1"
-                                       required>
-                                <small class="form-hint">VD: 1 hộp = 6 cái</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
+
+                        <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label">Mã vạch</label>
                                 <input type="text" 
-                                       name="product_units[${rowIndex}][barcode]" 
-                                       class="form-control" 
-                                       value="${unitData && unitData.barcode ? unitData.barcode : ''}"
-                                       placeholder="Tự động nếu để trống">
+                                    name="product_units[${rowIndex}][barcode]" 
+                                    class="form-control" 
+                                    value="${unitData && unitData.barcode ? unitData.barcode : ''}"
+                                    placeholder="Tự động nếu để trống">
                             </div>
                         </div>
+
                         <div class="col-md-3">
                             <div class="mb-3">
-                                <label class="form-label required">Giá bán</label>
-                                <input type="number" 
-                                       name="product_units[${rowIndex}][selling_price]" 
-                                       class="form-control edit-unit-selling-price" 
-                                       step="0.01" 
-                                       value="${unitData ? (unitData.selling_price / 100).toFixed(2) : 0}"
-                                       placeholder="0"
-                                       required>
+                                <label class="form-label">Giá bán</label>
+                                <input type="text" 
+                                    name="product_units[${rowIndex}][selling_price]" 
+                                    class="form-control format-price edit-unit-selling-price" 
+                                    value="${unitData ? numberFormat(unitData.selling_price || 0) : ''}"
+                                    placeholder="Nhập giá bán riêng"
+                                    required>
                             </div>
                         </div>
+
                         <div class="col-md-1">
                             <div class="mb-3">
                                 <label class="form-label">&nbsp;</label>
                                 <button type="button" class="btn btn-icon btn-outline-danger w-100 edit-remove-unit-btn">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" 
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" 
+                                        stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                         <path d="M4 7l16 0" />
                                         <path d="M10 11l0 6" />
@@ -1180,27 +1266,27 @@ document.addEventListener('DOMContentLoaded', function() {
         
         container.appendChild(row);
         
-        const conversionInput = row.querySelector('.edit-conversion-rate');
-        const priceInput = row.querySelector('.edit-unit-selling-price');
-        const basePriceInput = document.getElementById('edit-selling-price');
-        
-        conversionInput.addEventListener('input', function() {
-            if (basePriceInput.value) {
-                priceInput.value = (parseFloat(basePriceInput.value) * parseInt(this.value) * 0.95).toFixed(2);
-            }
-        });
+        const priceInput = row.querySelector('.format-price.edit-unit-selling-price');
+        if (priceInput) {
+            priceInput.addEventListener('input', function() {
+                let value = this.value.replace(/,/g, '');
+                if (!/^\d*$/.test(value)) {
+                    this.value = value.replace(/[^\d]/g, '');
+                    value = this.value.replace(/,/g, '');
+                }
+                if (value !== '' && !isNaN(value)) {
+                    this.value = numberFormat(parseInt(value, 10));
+                } else if (value === '') {
+                    this.value = '';
+                }
+            });
+        }
         
         row.querySelector('.edit-remove-unit-btn').addEventListener('click', () => row.remove());
     }
 
     document.getElementById('edit-add-unit-btn').addEventListener('click', function() {
         addEditUnitRow();
-    });
-
-    document.getElementById('edit-selling-price').addEventListener('input', function() {
-        document.querySelectorAll('.edit-conversion-rate').forEach(input => {
-            input.dispatchEvent(new Event('input'));
-        });
     });
 
     const editProductForm = document.getElementById('edit-product-form');
@@ -1216,6 +1302,11 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang lưu...';
             errorAlert.classList.add('d-none');
+
+            document.querySelectorAll('.format-price').forEach(input => {
+                const parsed = parseNumber(input.value);
+                input.value = parseInt(parsed, 10).toString();  
+            });
             
             const formData = new FormData(this);
             formData.delete('product_id'); 
@@ -1441,6 +1532,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+    function previewEditImage(event) {
+        const reader = new FileReader();
+        const imagePreview = document.getElementById('edit-image-preview');
+        
+        reader.onload = function() {
+            if (reader.readyState === 2) {
+                imagePreview.src = reader.result;
+            }
+        };
+        
+        if (event.target.files[0]) {
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    }
+
 </script>
 
 <style>
@@ -1511,6 +1618,49 @@ document.addEventListener('DOMContentLoaded', function() {
             max-height: calc(100vh - 150px);
         }
     }
+
+    .btn-outline-primary:hover {
+        background-color: #206bc4 !important;
+        border-color: #206bc4 !important;
+        color: #fff !important;
+    }
+
+    .btn-outline-primary:hover svg {
+        color: #fff !important;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #d63939 !important;
+        border-color: #d63939 !important;
+        color: #fff !important;
+    }
+
+    .btn-outline-danger:hover svg {
+        color: #fff !important;
+    }
+
+    .btn-outline-primary, 
+    .btn-outline-danger {
+        transition: all 0.2s ease-in-out;
+    }
+
+    #edit-image-preview {
+        border: 2px dashed #e9ecef;
+        padding: 0.5rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    #edit-image-preview:hover {
+        border-color: var(--tblr-primary);
+    }
+
+    @media (max-width: 768px) {
+        #edit-image-preview {
+            max-height: 150px;
+        }
+    }
+
 </style>
 
 @endsection

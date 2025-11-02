@@ -28,7 +28,6 @@
                         <div class="card">
                             <div class="card-body text-center">
                                 <h3 class="card-title mb-3">{{ __('Ảnh Sản Phẩm') }}</h3>
-
                                 <img
                                     class="img-account-profile mb-2"
                                     src="{{ $product->product_image ? asset('storage/products/'.$product->product_image) : asset('assets/img/products/default.webp') }}"

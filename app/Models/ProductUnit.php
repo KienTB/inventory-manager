@@ -12,15 +12,14 @@ class ProductUnit extends Model
     protected $fillable = [
         'product_id',
         'unit_id',
+        'custom_unit_name',
         'barcode',
-        'conversion_rate',
         'selling_price',
         'is_base_unit',
     ];
 
     protected $casts = [
         'is_base_unit' => 'boolean',
-        'conversion_rate' => 'integer',
         'selling_price' => 'integer',
     ];
 
