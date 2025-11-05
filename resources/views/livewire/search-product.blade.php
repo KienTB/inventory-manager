@@ -1,9 +1,10 @@
 <div class="position-relative">
     <div class="input-group">
         <input wire:keydown.escape="resetQuery"
-               wire:model.live.debounce.500ms="query" type="text"
+               wire:model.live.debounce.800ms="query" type="text"
                class="form-control form-control-solid"
-               placeholder="Tìm theo tên hoặc mã sản phẩm..."
+               placeholder="Tìm theo tên hoặc mã sản phẩm... (tối thiểu 2 ký tự)"
+               autocomplete="off"
         >
     </div>
 

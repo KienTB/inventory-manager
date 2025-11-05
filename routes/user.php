@@ -26,11 +26,11 @@ Route::middleware(['auth', 'role:user'])->group(function () {
     Route::get('/pos', [PosController::class, 'index'])->name('pos.index');
     Route::post('/pos/checkout', [OrderController::class, 'store'])->name('pos.checkout');
 
-    // Orders - Xem đơn hàng (chỉ đọc)
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/pending', OrderPendingController::class)->name('orders.pending');
-    Route::get('/orders/complete', OrderCompleteController::class)->name('orders.complete');
-    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    // // Orders - Xem đơn hàng (chỉ đọc)
+    // Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    // Route::get('/orders/pending', OrderPendingController::class)->name('orders.pending');
+    // Route::get('/orders/complete', OrderCompleteController::class)->name('orders.complete');
+    // Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 
     // TODO: Remove from OrderController - Download invoice
     Route::get('/orders/details/{order_id}/download', [OrderController::class, 'downloadInvoice'])->name('order.downloadInvoice');

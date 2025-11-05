@@ -22,13 +22,6 @@
                         <a href="{{ route('products.create') }}" class="btn btn-primary d-sm-none btn-icon" aria-label="Create new report">
                             <x-icon.plus/>
                         </a>
-                        <a href="{{ route('orders.create') }}" class="btn btn-primary d-none d-sm-inline-block">
-                            <x-icon.plus/>
-                            Tạo đơn hàng mới
-                        </a>
-                        <a href="{{ route('orders.create') }}" class="btn btn-primary d-sm-none btn-icon" aria-label="Create new report">
-                            <x-icon.plus/>
-                        </a>
                     </div>
                 </div>
             </div>

@@ -40,16 +40,13 @@
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
                                     <a class="dropdown-item" href="{{ route('orders.index') }}">
-                                        {{ __('All') }}
+                                        {{ __('All Orders') }}
                                     </a>
                                     <a class="dropdown-item" href="{{ route('orders.complete') }}">
                                         {{ __('Completed') }}
                                     </a>
                                     <a class="dropdown-item" href="{{ route('orders.pending') }}">
                                         {{ __('Pending') }}
-                                    </a>
-                                    <a class="dropdown-item" href="{{ route('due.index') }}">
-                                        {{ __('Due') }}
                                     </a>
                                 </div>
                             </div>

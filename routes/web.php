@@ -63,10 +63,17 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/products/{id}/ajax-update', [ProductController::class, 'ajaxUpdate'])->name('products.ajaxUpdate');
     Route::resource('/products', ProductController::class);
 
-    // Route Orders - Admin có thể tạo và chỉnh sửa đơn hàng
+    // Route Orders - Admin orders (same as user but with full access)
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
-    Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.store');
-    Route::put('/orders/update/{order}', [OrderController::class, 'update'])->name('orders.update');
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::get('/orders/pending', [OrderPendingController::class, '__invoke'])->name('orders.pending');
+    Route::get('/orders/complete', [OrderCompleteController::class, '__invoke'])->name('orders.complete');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::get('/orders/details/{order}/download', [OrderController::class, 'downloadInvoice'])->name('order.downloadInvoice');
+    Route::get('/orders/{order}/success', [OrderController::class, 'success'])->name('orders.success');
+    Route::get('/due/orders', [DueOrderController::class, 'index'])->name('due.index');
+    Route::get('/due/order/view/{order}', [DueOrderController::class, 'show'])->name('due.show');
 
     // Settings - Cấu hình cửa hàng
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
@@ -99,17 +106,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    // Orders - Xem đơn hàng (cả admin và user đều có thể xem)
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/pending', OrderPendingController::class)->name('orders.pending');
-    Route::get('/orders/complete', OrderCompleteController::class)->name('orders.complete');
-    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-
-    // Download invoice - Cả admin và user đều có thể tải
-    Route::get('/orders/details/{order}/download', [OrderController::class, 'downloadInvoice'])->name('order.downloadInvoice');
-
-    // Order success page - Cả admin và user đều có thể xem
-    Route::get('/orders/{order}/success', [OrderController::class, 'success'])->name('orders.success');
+    // Orders - Regular users can only view their own orders
+    // All order routes are now in the admin section above
 
     // Purchases - User chỉ có thể xem, không thể chỉnh sửa
     Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');

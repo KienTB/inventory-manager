@@ -31,7 +31,7 @@ class SearchProduct extends Component
         $this->how_many = 5;
         $this->search_results = Collection::empty();
     }
-    
+
     public function updatedActiveCartInstance()
     {
         // Khi cart instance thay đổi, không cần reset component

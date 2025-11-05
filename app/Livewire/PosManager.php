@@ -526,7 +526,7 @@ class PosManager extends Component
                 // Bỏ qua lỗi
             }
         }
-        
+
         return view('livewire.pos-manager', [
             'activeCartItems' => $this->getCartItems(),
             'activeCartSubtotal' => $this->getCartSubtotal(),
