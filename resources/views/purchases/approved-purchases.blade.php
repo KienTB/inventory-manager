@@ -7,7 +7,7 @@
             <div class="card-header">
                 <div>
                     <h3 class="card-title">
-                        {{ __('Purchases: Approved') }}
+                        {{ __('Nhập hàng: Đã phê duyệt') }}
                     </h3>
                 </div>
 
@@ -21,13 +21,13 @@
                 <table class="table table-bordered card-table table-vcenter text-nowrap datatable">
                     <thead class="thead-light">
                         <tr>
-                            <th scope="col" class="align-middle text-center w-1">No.</th>
-                            <th scope="col" class="align-middle text-center">Purchase</th>
-                            <th scope="col" class="align-middle text-center">Supplier</th>
-                            <th scope="col" class="align-middle text-center">Date</th>
-                            <th scope="col" class="align-middle text-center">Total</th>
-                            <th scope="col" class="align-middle text-center">Status</th>
-                            <th scope="col" class="align-middle text-center">Action</th>
+                            <th scope="col" class="align-middle text-center w-1">STT</th>
+                            <th scope="col" class="align-middle text-center">Phiếu nhập</th>
+                            <th scope="col" class="align-middle text-center">Nhà cung cấp</th>
+                            <th scope="col" class="align-middle text-center">Ngày</th>
+                            <th scope="col" class="align-middle text-center">Tổng cộng</th>
+                            <th scope="col" class="align-middle text-center">Trạng thái</th>
+                            <th scope="col" class="align-middle text-center">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>

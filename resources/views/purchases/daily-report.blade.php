@@ -8,12 +8,12 @@
                 <div class="col-auto mb-3">
                     <h1 class="page-header-title">
                         <div class="page-header-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
+                            {{-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
                                 <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
                                 <polyline points="13 2 13 9 20 9"></polyline>
-                            </svg>
+                            </svg> --}}
                         </div>
-                        Daily Purchase Report - {{ today()->format('d-m-Y') }}
+                        Báo cáo nhập hàng hằng ngày - {{ today()->format('d-m-Y') }}
                     </h1>
                 </div>
             </div>
@@ -26,20 +26,20 @@
         <div class="col-xl-12">
             <div class="card mb-4">
                 <div class="card-header">
-                    List of Purchases
+                    Danh sách phiếu nhập hàng
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-striped align-middle">
                             <thead class="thead-light">
                                 <tr>
-                                    <th scope="col">No.</th>
-                                    <th scope="col">Supplier Name</th>
-                                    <th scope="col">Purchase No.</th>
-                                    <th scope="col">Date</th>
-                                    <th scope="col">Total Amount</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Actions</th>
+                                    <th scope="col">STT</th>
+                                    <th scope="col">Tên nhà cung cấp</th>
+                                    <th scope="col">Mã phiếu nhập</th>
+                                    <th scope="col">Ngày</th>
+                                    <th scope="col">Tổng tiền</th>
+                                    <th scope="col">Trạng thái</th>
+                                    <th scope="col">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -52,19 +52,19 @@
                                     <td>{{ $purchase->total_amount }}</td>
                                     <td>
                                         @if ($purchase->purchase_status == 1)
-                                            <span class="btn btn-success">Approved</span>
+                                            <span class="btn btn-success">Đã phê duyệt</span>
                                         @else
-                                            <span class="btn btn-warning">Pending</span>
+                                            <span class="btn btn-warning">Chờ phê duyệt</span>
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ route('purchases.show', $purchase->id) }}" class="btn btn-primary btn-sm">View Details</a>
+                                        <a href="{{ route('purchases.show', $purchase->id) }}" class="btn btn-primary btn-sm">Xem chi tiết</a>
                                     </td>
                                 </tr>
                                 @empty
                                     <tr>
                                         <td class="align-middle text-center" colspan="7">
-                                            No results found
+                                            Không có kết quả nào được tìm thấy
                                         </td>
                                     </tr>
                                 @endforelse

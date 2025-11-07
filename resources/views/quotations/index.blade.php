@@ -4,9 +4,9 @@
     <div class="page-body">
         @if($quotations->isEmpty())
             <x-empty
-                title="No quotations found"
-                message="Try adjusting your search or filter to find what you're looking for."
-                button_label="{{ __('Add your first Quotation') }}"
+                title="Không tìm thấy báo giá nào"
+                message="Hãy thử điều chỉnh tìm kiếm hoặc bộ lọc để tìm nội dung bạn cần."
+                button_label="{{ __('Thêm báo giá đầu tiên của bạn') }}"
                 button_route="{{ route('quotations.create') }}"
             />
         @else

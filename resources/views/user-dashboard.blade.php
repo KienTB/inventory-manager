@@ -42,7 +42,6 @@
             </div>
         </div>
 
-        <!-- Quick Stats -->
         <div class="row mb-4">
             <div class="col-md-4">
                 <div class="card">
@@ -70,7 +69,6 @@
             </div>
         </div>
 
-        <!-- Recent Orders -->
         <div class="row">
             <div class="col-12">
                 <div class="card">
