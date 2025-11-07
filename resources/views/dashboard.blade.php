@@ -22,13 +22,6 @@
                         <a href="{{ route('products.create') }}" class="btn btn-primary d-sm-none btn-icon" aria-label="Create new report">
                             <x-icon.plus/>
                         </a>
-                        <a href="{{ route('orders.create') }}" class="btn btn-primary d-none d-sm-inline-block">
-                            <x-icon.plus/>
-                            Tạo đơn hàng mới
-                        </a>
-                        <a href="{{ route('orders.create') }}" class="btn btn-primary d-sm-none btn-icon" aria-label="Create new report">
-                            <x-icon.plus/>
-                        </a>
                     </div>
                 </div>
             </div>
@@ -139,15 +132,43 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">📊 Biểu đồ cột - Doanh thu 7 ngày gần nhất</h3>
-                            <div class="card-actions">
-                                <button onclick="renderWeeklyChart()" class="btn btn-sm btn-outline-primary">
-                                    🔄 Refresh Chart
-                                </button>
-                            </div>
+                            <h3 class="card-title">📈 Thống kê doanh thu theo thời gian</h3>
                         </div>
                         <div class="card-body">
-                            <div id="weekly-revenue-chart" style="height: 350px; width: 100%;"></div>
+                            <ul class="nav nav-tabs" data-bs-toggle="tabs">
+                                <li class="nav-item">
+                                    <a href="#tab-hourly" class="nav-link active" data-bs-toggle="tab">Theo giờ</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#tab-daily" class="nav-link" data-bs-toggle="tab">Theo ngày</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#tab-weekday" class="nav-link" data-bs-toggle="tab">Theo thứ</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#tab-monthly" class="nav-link" data-bs-toggle="tab">Theo tháng</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#tab-yearly" class="nav-link" data-bs-toggle="tab">Theo năm</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content pt-3">
+                                <div class="tab-pane active show" id="tab-hourly">
+                                    <div id="hourly-chart" style="height: 350px; width:100%"></div>
+                                </div>
+                                <div class="tab-pane" id="tab-daily">
+                                    <div id="daily-chart" style="height: 350px; width:100%"></div>
+                                </div>
+                                <div class="tab-pane" id="tab-weekday">
+                                    <div id="weekday-chart" style="height: 350px; width:100%"></div>
+                                </div>
+                                <div class="tab-pane" id="tab-monthly">
+                                    <div id="monthly-chart" style="height: 350px; width:100%"></div>
+                                </div>
+                                <div class="tab-pane" id="tab-yearly">
+                                    <div id="yearly-chart" style="height: 350px; width:100%"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -190,6 +211,9 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Thống kê theo thời gian giống KiotViet: Giờ / Ngày / Thứ / Tháng / Năm -->
+                
 
                 <!-- Bảng top sản phẩm và đơn hàng gần đây -->
                 <div class="col-lg-6">
@@ -365,6 +389,37 @@
 
                 // Render weekly chart từ dữ liệu thực
                 renderWeeklyChart();
+                // Render time-based charts
+                renderHourlyTimeChart();
+                renderDailyTimeChart();
+                renderWeekdayTimeChart();
+                renderMonthlyTimeChart();
+                renderYearlyTimeChart();
+
+                // Re-render on tab shown (fix initial hidden size)
+                const tabLinks = document.querySelectorAll('a[data-bs-toggle="tab"]');
+                tabLinks.forEach(link => {
+                    link.addEventListener('shown.bs.tab', function(e) {
+                        const target = e.target.getAttribute('href');
+                        switch(target) {
+                            case '#tab-hourly':
+                                renderHourlyTimeChart();
+                                break;
+                            case '#tab-daily':
+                                renderDailyTimeChart();
+                                break;
+                            case '#tab-weekday':
+                                renderWeekdayTimeChart();
+                                break;
+                            case '#tab-monthly':
+                                renderMonthlyTimeChart();
+                                break;
+                            case '#tab-yearly':
+                                renderYearlyTimeChart();
+                                break;
+                        }
+                    });
+                });
             }
         });
 
@@ -531,6 +586,89 @@
                 console.error('Error creating weekly chart:', error);
                 weeklyElement.innerHTML = `<div style="text-align: center; padding: 50px; color: #dc3545;"><h5>Lỗi tạo biểu đồ</h5><p>${error.message}</p></div>`;
             }
+        }
+
+        // ===== Time-based charts =====
+        function currencyVND(value) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+        }
+
+        function renderHourlyTimeChart() {
+            const el = document.getElementById('hourly-chart');
+            if (!el || typeof ApexCharts === 'undefined') return;
+            el.innerHTML = '';
+            const options = {
+                chart: { type: 'bar', height: 350, toolbar: { show: false } },
+                series: [{ name: 'Doanh thu', data: @json($hourlyData) }],
+                xaxis: { categories: @json($hourlyLabels), title: { text: 'Giờ' } },
+                yaxis: { labels: { formatter: v => currencyVND(v) }, title: { text: 'VND' } },
+                colors: ['#5d87ff'], dataLabels: { enabled: false }, grid: { borderColor: '#e9ecef' },
+                tooltip: { y: { formatter: v => currencyVND(v) } }
+            };
+            new ApexCharts(el, options).render();
+        }
+
+        function renderDailyTimeChart() {
+            const el = document.getElementById('daily-chart');
+            if (!el || typeof ApexCharts === 'undefined') return;
+            el.innerHTML = '';
+            const options = {
+                chart: { type: 'line', height: 350, toolbar: { show: false } },
+                stroke: { curve: 'smooth', width: 3 },
+                series: [{ name: 'Doanh thu', data: @json($dailyData) }],
+                xaxis: { categories: @json($dailyLabels), title: { text: 'Ngày (30 ngày gần nhất)' } },
+                yaxis: { labels: { formatter: v => currencyVND(v) }, title: { text: 'VND' } },
+                colors: ['#ff6b6b'], markers: { size: 0 },
+                tooltip: { y: { formatter: v => currencyVND(v) } }
+            };
+            new ApexCharts(el, options).render();
+        }
+
+        function renderWeekdayTimeChart() {
+            const el = document.getElementById('weekday-chart');
+            if (!el || typeof ApexCharts === 'undefined') return;
+            el.innerHTML = '';
+            const options = {
+                chart: { type: 'bar', height: 350, toolbar: { show: false } },
+                plotOptions: { bar: { columnWidth: '55%', borderRadius: 6 } },
+                series: [{ name: 'Doanh thu', data: @json($weeklyDayData) }],
+                xaxis: { categories: @json($weeklyDayLabels), title: { text: 'Thứ' } },
+                yaxis: { labels: { formatter: v => currencyVND(v) }, title: { text: 'VND' } },
+                colors: ['#49beff'], dataLabels: { enabled: false },
+                tooltip: { y: { formatter: v => currencyVND(v) } }
+            };
+            new ApexCharts(el, options).render();
+        }
+
+        function renderMonthlyTimeChart() {
+            const el = document.getElementById('monthly-chart');
+            if (!el || typeof ApexCharts === 'undefined') return;
+            el.innerHTML = '';
+            const options = {
+                chart: { type: 'area', height: 350, toolbar: { show: false } },
+                dataLabels: { enabled: false }, stroke: { curve: 'smooth', width: 2 },
+                series: [{ name: 'Doanh thu', data: @json($monthlyData) }],
+                xaxis: { categories: @json($monthlyLabels), title: { text: 'Tháng (12 tháng)' } },
+                yaxis: { labels: { formatter: v => currencyVND(v) }, title: { text: 'VND' } },
+                colors: ['#39b69a'], fill: { type: 'gradient', gradient: { opacityFrom: 0.6, opacityTo: 0.2 } },
+                tooltip: { y: { formatter: v => currencyVND(v) } }
+            };
+            new ApexCharts(el, options).render();
+        }
+
+        function renderYearlyTimeChart() {
+            const el = document.getElementById('yearly-chart');
+            if (!el || typeof ApexCharts === 'undefined') return;
+            el.innerHTML = '';
+            const options = {
+                chart: { type: 'bar', height: 350, toolbar: { show: false } },
+                series: [{ name: 'Doanh thu', data: @json($yearlyData) }],
+                xaxis: { categories: @json($yearlyLabels), title: { text: 'Năm' } },
+                yaxis: { labels: { formatter: v => currencyVND(v) }, title: { text: 'VND' } },
+                colors: ['#845ef7'], dataLabels: { enabled: false },
+                tooltip: { y: { formatter: v => currencyVND(v) } }
+            };
+            new ApexCharts(el, options).render();
         }
 
         // @formatter:on

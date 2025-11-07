@@ -12,6 +12,8 @@ class ProductCart extends Component
 
     public $cart_instance;
 
+    public $cartInstance; // Property để nhận prop từ parent (Livewire map :cart-instance vào đây)
+
     public $activeCartInstance = 'order';
 
     public $global_discount;
@@ -34,6 +36,7 @@ class ProductCart extends Component
 
     public function mount($cartInstance, $data = null): void
     {
+        $this->cartInstance = $cartInstance; // Set property để Livewire track
         $this->activeCartInstance = $cartInstance;
         $this->cart_instance = $cartInstance;
 
@@ -73,8 +76,21 @@ class ProductCart extends Component
         }
     }
 
+    public function updatedCartInstance()
+    {
+        // Khi cartInstance prop thay đổi trực tiếp (từ parent component)
+        // Livewire map :cart-instance prop vào $cartInstance property (camelCase)
+        // Sync với $cart_instance và $activeCartInstance
+        if ($this->cartInstance && $this->cartInstance !== $this->activeCartInstance) {
+            $this->cart_instance = $this->cartInstance;
+            $this->activeCartInstance = $this->cartInstance;
+            $this->syncCartData();
+        }
+    }
+
     public function tabChanged($newTabId): void
     {
+        $this->cartInstance = $newTabId; // Sync property
         $this->activeCartInstance = $newTabId;
         $this->cart_instance = $newTabId;
         $this->syncCartData();
@@ -156,6 +172,9 @@ class ProductCart extends Component
 
         // Thông báo cập nhật tổng tiền
         $this->dispatch('cartUpdated');
+        
+        // Thông báo để reset search query
+        $this->dispatch('productAdded');
     }
 
     public function removeItem($row_id): void
@@ -299,7 +318,7 @@ class ProductCart extends Component
         if ($new_price) {
             $product_price = $new_price;
         } else {
-            $this->unit_price[$product['id']] = $product['selling_price']; // selling price?
+            $this->unit_price[$product['id']] = $product['selling_price'];
 
             if ($this->cart_instance == 'purchase' || $this->cart_instance == 'purchase_return') {
                 $this->unit_price[$product['id']] = $product['product_cost'];
@@ -307,24 +326,19 @@ class ProductCart extends Component
 
             $product_price = $this->unit_price[$product['id']];
         }
+
         $price = 0;
         $unit_price = 0;
         $product_tax = 0;
         $sub_total = 0;
 
-        if ($product['tax_type'] == 1) {
-            $price = $product_price + ($product_price * ($product['tax'] / 100));
+        // ✅ Nếu sản phẩm có thuế thì cộng thêm phần trăm thuế, nếu không thì giữ nguyên
+        $tax_rate = $product['tax'] ?? 0;
+        if ($tax_rate > 0) {
+            $product_tax = $product_price * ($tax_rate / 100);
+            $price = $product_price + $product_tax;
             $unit_price = $product_price;
-            $product_tax = $product_price * ($product['tax'] / 100);
-            $sub_total = $product_price + ($product_price * ($product['tax'] / 100));
-
-        } elseif ($product['tax_type'] == 2) {
-
-            $price = $product_price;
-            $unit_price = $product_price - ($product_price * ($product['tax'] / 100));
-            $product_tax = $product_price * ($product['tax'] / 100);
-            $sub_total = $product_price;
-
+            $sub_total = $price;
         } else {
             $price = $product_price;
             $unit_price = $product_price;
@@ -332,8 +346,14 @@ class ProductCart extends Component
             $sub_total = $product_price;
         }
 
-        return ['price' => $price, 'unit_price' => $unit_price, 'tax' => $product_tax, 'sub_total' => $sub_total];
+        return [
+            'price' => $price,
+            'unit_price' => $unit_price,
+            'tax' => $product_tax,
+            'sub_total' => $sub_total,
+        ];
     }
+
 
     public function updateCartOptions($row_id, $product_id, $cart_item, $discount_amount): void
     {

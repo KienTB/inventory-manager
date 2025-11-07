@@ -63,8 +63,22 @@ class OrderController extends Controller
 
         // Xóa discount khỏi session
         session()->forget('discount_' . $cartInstance);
+        
+        // Xóa tab đã thanh toán khỏi danh sách tabs trong session
+        $savedTabs = session('pos_tabs', []);
+        $savedTabs = array_values(array_filter($savedTabs, fn($tab) => $tab !== $cartInstance));
+        session(['pos_tabs' => $savedTabs]);
 
-        // Redirect đến trang thành công thay vì trực tiếp download invoice
+        // Trả về JSON response để hiển thị modal thay vì redirect
+        if ($request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json([
+                'success' => true,
+                'message' => 'Thanh toán thành công!',
+                'order_id' => $order->id,
+            ]);
+        }
+
+        // Fallback: Redirect đến trang thành công nếu không phải AJAX request
         return redirect()->route('orders.success', $order->id)->with('success', 'Thanh toán thành công!');
     }
 

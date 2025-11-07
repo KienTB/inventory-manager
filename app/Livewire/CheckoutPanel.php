@@ -13,7 +13,7 @@ class CheckoutPanel extends Component
 
     public string $payment_method = 'cash'; // cash|bank
 
-    public ?float $received = null; // cash received
+    public float $received = 0.0; // cash received
 
     public ?int $customer_id = null;
 
@@ -28,11 +28,19 @@ class CheckoutPanel extends Component
         $this->discount = session('discount_' . $cartInstance, 0.0);
     }
 
+    public function updatedCartInstance()
+    {
+        // Khi cartInstance prop thay đổi trực tiếp, khôi phục discount
+        $this->discount = session('discount_' . $this->cartInstance, 0.0);
+        $this->received = 0.0; // Reset received khi đổi tab
+    }
+
     public function tabChanged($newTabId): void
     {
         $this->cartInstance = $newTabId;
         // Khôi phục discount từ session cho tab mới
         $this->discount = session('discount_' . $newTabId, 0.0);
+        $this->received = 0.0; // Reset received khi đổi tab
     }
 
     public function cartUpdated(): void
