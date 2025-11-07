@@ -5,7 +5,6 @@
     <div class="container-xl">
         <x-alert/>
 
-        <!-- Success Card -->
         <div class="row justify-content-center">
             <div class="col-lg-8 col-md-10">
                 <div class="card border-success">
@@ -21,7 +20,6 @@
                     </div>
 
                     <div class="card-body text-center">
-                        <!-- Order Summary -->
                         <div class="mb-4">
                             <div class="row">
                                 <div class="col-md-6">
@@ -35,7 +33,6 @@
                             </div>
                         </div>
 
-                        <!-- Customer Info -->
                         @if($order->customer)
                         <div class="mb-4">
                             <div class="text-muted">Khách hàng</div>
@@ -43,23 +40,19 @@
                         </div>
                         @endif
 
-                        <!-- Order Date -->
                         <div class="mb-4">
                             <div class="text-muted">Thời gian thanh toán</div>
                             <div class="h6">{{ $order->order_date->format('d/m/Y H:i:s') }}</div>
                         </div>
 
-                        <!-- Order Items Summary -->
                         <div class="mb-4">
                             <div class="text-muted">Sản phẩm đã mua</div>
                             <div class="h6">{{ $order->details->sum('quantity') }} sản phẩm</div>
                         </div>
 
-                        <!-- Action Buttons -->
                         <div class="row">
                             <div class="col-12">
                                 <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                                    <!-- Tiếp tục bán hàng button -->
                                     <a href="{{ route('pos.index') }}" class="btn btn-primary btn-lg me-md-2">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-shopping-cart" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -71,7 +64,6 @@
                                         Tiếp tục bán hàng
                                     </a>
 
-                                    <!-- In hóa đơn button -->
                                     <a href="{{ route('order.downloadInvoice', $order->id) }}" class="btn btn-outline-success btn-lg" target="_blank">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -85,7 +77,6 @@
                             </div>
                         </div>
 
-                        <!-- Additional Info -->
                         <div class="mt-4 pt-3 border-top">
                             <div class="text-muted small">
                                 <p>✅ Đơn hàng đã được lưu vào hệ thống</p>
@@ -98,7 +89,6 @@
             </div>
         </div>
 
-        <!-- Quick Actions -->
         <div class="row mt-4">
             <div class="col-12">
                 <div class="card">

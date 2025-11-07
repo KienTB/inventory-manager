@@ -6,13 +6,10 @@
         </title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta charset="UTF-8">
-        <!-- External CSS libraries -->
         <link type="text/css" rel="stylesheet" href="{{ asset('assets/invoice/css/bootstrap.min.css') }}">
         <link type="text/css" rel="stylesheet" href="{{ asset('assets/invoice/fonts/font-awesome/css/font-awesome.min.css') }}">
-        <!-- Google fonts -->
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-        <!-- Custom Stylesheet -->
         <link type="text/css" rel="stylesheet" href="{{ asset('assets/invoice/css/style.css') }}">
     </head>
     <body>
@@ -72,7 +69,6 @@
                                         </thead>
 
                                         <tbody>
-{{--                                            @foreach ($orderDetails as $item)--}}
                                             @foreach ($order->details as $item)
                                             <tr>
                                                 <td class="align-middle">
@@ -130,7 +126,6 @@
                                 </div>
                             </div>
 
-                            <!-- Thông tin thanh toán -->
                             <div class="row mt-3">
                                 <div class="col-sm-6">
                                     <div class="payment-info">
@@ -198,10 +193,8 @@
         <script src="{{ asset('assets/invoice/js/html2canvas.js') }}"></script>
         <script src="{{ asset('assets/invoice/js/app.js') }}"></script>
 
-        <!-- Auto print when page loads -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                // Wait a moment for the page to fully load
                 setTimeout(function() {
                     window.print();
                 }, 500);

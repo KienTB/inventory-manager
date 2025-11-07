@@ -42,6 +42,8 @@ Route::get('/', function () {
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     // User Management
     Route::resource('/users', UserController::class); //->except(['show']);
@@ -101,13 +103,6 @@ Route::middleware(['auth'])->group(function () {
     // POS - Cả admin và user đều có thể bán hàng
     Route::get('/pos', [PosController::class, 'index'])->name('pos.index');
     Route::post('/pos/checkout', [OrderController::class, 'store'])->name('pos.checkout');
-
-    // Profile - Chỉnh sửa thông tin cá nhân (cả admin và user)
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-
-    // Orders - Regular users can only view their own orders
-    // All order routes are now in the admin section above
 
     // Purchases - User chỉ có thể xem, không thể chỉnh sửa
     Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
