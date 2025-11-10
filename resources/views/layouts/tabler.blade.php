@@ -47,7 +47,37 @@
         <script src="{{ asset('dist/js/tabler.min.js') }}" defer></script>
         {{--- Page Scripts ---}}
         @stack('page-scripts')
-
+        
+        <!-- Load Livewire scripts (includes Alpine.js) -->
         @livewireScripts
+        
+        <!-- Load app.js -->
+        @vite(['resources/js/app.js'])
+        
+        <!-- Initialize Livewire -->
+        <script>
+            // Wait for Livewire to be fully loaded
+            document.addEventListener('livewire:init', function() {
+                // Handle refresh event
+                Livewire.on('refresh', () => {
+                    window.location.reload();
+                });
+
+                // Initialize any global Alpine.js components here
+                document.addEventListener('alpine:init', () => {
+                    // Example of a global component
+                    window.Alpine.data('dropdown', () => ({
+                        open: false,
+                        toggle() {
+                            this.open = !this.open;
+                        },
+                        close() {
+                            this.open = false;
+                        }
+                    }));
+                });
+            });
+        </script>
+
     </body>
 </html>

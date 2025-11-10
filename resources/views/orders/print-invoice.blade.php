@@ -14,6 +14,19 @@
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
         <!-- Custom Stylesheet -->
         <link type="text/css" rel="stylesheet" href="{{ asset('assets/invoice/css/style.css') }}">
+        <script>
+            // Tự động in khi trang tải xong
+            window.onload = function() {
+                // Chờ một chút để đảm bảo tất cả nội dung đã tải xong
+                setTimeout(function() {
+                    window.print();
+                    // Đóng tab sau khi in (tùy chọn)
+                    // window.onafterprint = function() {
+                    //     window.close();
+                    // };
+                }, 500);
+            };
+        </script>
     </head>
     <body>
         <div class="invoice-16 invoice-content">
@@ -76,7 +89,7 @@
                                             @foreach ($order->details as $item)
                                             <tr>
                                                 <td class="align-middle">
-                                                    {{ $item->product->name }}
+                                                    {{ $item->product->invoice_name ?? $item->product->name }}
                                                 </td>
                                                 <td class="align-middle text-center">
                                                     {{ $item->product->unit->short_code ?? 'cái' }}

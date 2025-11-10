@@ -10,11 +10,32 @@ class ProductCart extends Component
 {
     public $listeners = ['productSelected', 'discountModalRefresh', 'tabChanged'];
 
+    /**
+     * The cart instance name (e.g., 'sale', 'purchase', etc.)
+     * This is the main property that should be used to reference the cart instance
+     *
+     * @var string
+     */
+    public $cartInstanceName = 'order';
+
+    /**
+     * @deprecated Use $cartInstanceName instead
+     * @var string
+     */
     public $cart_instance;
 
-    public $cartInstance; // Property để nhận prop từ parent (Livewire map :cart-instance vào đây)
-
+    /**
+     * @deprecated Use $cartInstanceName instead
+     * @var string
+     */
     public $activeCartInstance = 'order';
+    
+    /**
+     * The Livewire component instance
+     *
+     * @var \Livewire\Component
+     */
+    protected $component;
 
     public $global_discount;
 
@@ -34,19 +55,46 @@ class ProductCart extends Component
 
     public $data;
 
-    public function mount($cartInstance, $data = null): void
+    /**
+     * Mount the component.
+     *
+     * @param string $cartInstance The cart instance name (e.g., 'sale', 'purchase')
+     * @param mixed $data Optional data to initialize the cart
+     * @return void
+     */
+    public function mount($cartInstance = 'order', $data = null): void
     {
-        $this->cartInstance = $cartInstance; // Set property để Livewire track
-        $this->activeCartInstance = $cartInstance;
-        $this->cart_instance = $cartInstance;
+        try {
+            // Initialize cart instance name
+            $this->cartInstanceName = $cartInstance;
+            
+            // For backward compatibility with legacy code
+            $this->cart_instance = $this->cartInstanceName;
+            $this->activeCartInstance = $this->cartInstanceName;
 
+            // Initialize cart instance
+            Cart::instance($this->cartInstanceName);
+            
+            // Ensure the cart is properly initialized
+            if (!isset($this->cartInstanceName)) {
+                $this->cartInstanceName = 'order';
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error initializing cart: ' . $e->getMessage());
+            $this->cartInstanceName = 'order';
+            Cart::instance($this->cartInstanceName);
+        }
+
+        // Load data if provided
         if ($data) {
             $this->data = $data;
 
-            $this->global_discount = $data->discount_percentage;
-            $this->global_tax = $data->tax_percentage;
-            $this->shipping = $data->shipping_amount;
+            // Set global values from data
+            $this->global_discount = $data->discount_percentage ?? 0;
+            $this->global_tax = $data->tax_percentage ?? 0;
+            $this->shipping = $data->shipping_amount ?? 0;
 
+            // Update tax calculations
             $this->updatedGlobalTax();
             $this->updatedGlobalDiscount();
 
@@ -78,21 +126,28 @@ class ProductCart extends Component
 
     public function updatedCartInstance()
     {
-        // Khi cartInstance prop thay đổi trực tiếp (từ parent component)
-        // Livewire map :cart-instance prop vào $cartInstance property (camelCase)
-        // Sync với $cart_instance và $activeCartInstance
-        if ($this->cartInstance && $this->cartInstance !== $this->activeCartInstance) {
-            $this->cart_instance = $this->cartInstance;
-            $this->activeCartInstance = $this->cartInstance;
+        // When cartInstance changes from the parent component
+        if ($this->cartInstance && $this->cartInstance !== $this->cartInstanceName) {
+            $this->cartInstanceName = $this->cartInstance;
+$this->cart_instance = $this->cartInstance; // For backward compatibility
+            $this->activeCartInstance = $this->cartInstance; // For backward compatibility
+            $this->cartInstanceName = $this->cartInstance; // Keep the main property in sync
+            
+            // Reinitialize cart with the new instance name
+            if (!Cart::instance($this->cartInstanceName)->initialized ?? true) {
+                Cart::instance($this->cartInstanceName);
+            }
+            
             $this->syncCartData();
         }
     }
 
     public function tabChanged($newTabId): void
     {
-        $this->cartInstance = $newTabId; // Sync property
-        $this->activeCartInstance = $newTabId;
-        $this->cart_instance = $newTabId;
+        $this->cartInstanceName = $newTabId; // Main property
+        $this->cart_instance = $newTabId; // Legacy
+        $this->activeCartInstance = $newTabId; // Legacy
+        $this->cartInstance = $newTabId; // For Livewire property binding
         $this->syncCartData();
     }
 
@@ -121,13 +176,35 @@ class ProductCart extends Component
         }
     }
 
+    /**
+     * Render the component.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
-        $cart_items = Cart::instance($this->cart_instance)->content();
+        try {
+            // Ensure we have a valid cart instance
+            $cartInstance = $this->cartInstanceName ?? 'order';
+            
+            // Initialize cart instance
+            $cart = Cart::instance($cartInstance);
+            
+            // Get cart items
+            $cart_items = $cart->content();
 
-        return view('livewire.product-cart', [
-            'cart_items' => $cart_items,
-        ]);
+            return view('livewire.product-cart', [
+                'cart_items' => $cart_items,
+            ]);
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            \Log::error('Error in ProductCart render: ' . $e->getMessage());
+            
+            // Return an empty cart view if there's an error
+            return view('livewire.product-cart', [
+                'cart_items' => collect(),
+            ]);
+        }
     }
 
     public function productSelected($product): void

@@ -10,6 +10,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Order\DueOrderController;
+use App\Http\Controllers\PosController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Purchase\PurchaseController;
 use App\Http\Controllers\Order\OrderPendingController;
@@ -106,15 +107,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    // Orders - Regular users can only view their own orders
-    // All order routes are now in the admin section above
+    // Orders - Cả admin và user đều có thể xem
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/pending', [OrderPendingController::class, '__invoke'])->name('orders.pending');
+    Route::get('/orders/complete', [OrderCompleteController::class, '__invoke'])->name('orders.complete');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::get('/orders/details/{order}/download', [OrderController::class, 'downloadInvoice'])->name('order.downloadInvoice');
+    Route::get('/orders/{order}/success', [OrderController::class, 'success'])->name('orders.success');
 
     // Purchases - User chỉ có thể xem, không thể chỉnh sửa
     Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
     Route::get('/purchases/{purchase}', [PurchaseController::class, 'show'])->name('purchases.show');
 
-    // DUES - User chỉ có thể xem
-    Route::get('/due/orders/', [DueOrderController::class, 'index'])->name('due.index');
+    // DUES - Cả admin và user đều có thể xem
+    Route::get('/due/orders', [DueOrderController::class, 'index'])->name('due.index');
     Route::get('/due/order/view/{order}', [DueOrderController::class, 'show'])->name('due.show');
 });
 

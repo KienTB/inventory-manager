@@ -20,7 +20,9 @@ class PosManager extends Component
     public $listeners = [
         'continueSelling' => 'handleContinueSelling',
         'refreshPosManager' => 'refreshAfterPayment',
-        'showPaymentSuccess' => 'handleShowPaymentSuccess'
+        'showPaymentSuccess' => 'handleShowPaymentSuccess',
+        'deleteInvoice' => 'confirmDeleteInvoice',
+        'confirmDeleteInvoice' => 'deleteInvoice'
     ];
     
     public function refreshAfterPayment()
@@ -232,6 +234,38 @@ class PosManager extends Component
             $this->saveTabsToSession();
         }
     }
+    
+    /**
+     * Xác nhận xóa hóa đơn
+     */
+    public function confirmDeleteInvoice($tabId)
+    {
+        $this->dispatchBrowserEvent('show-delete-confirmation', ['tabId' => $tabId]);
+    }
+    
+    /**
+     * Xóa hóa đơn
+     */
+    public function deleteInvoice($tabId)
+    {
+        try {
+            // Đóng tab nếu nó đang mở
+            if (in_array($tabId, $this->tabs)) {
+                $this->closeTab($tabId);
+            }
+            
+            // Xóa giỏ hàng
+            $this->destroyCartForTab($tabId);
+            
+            // Cập nhật lại danh sách hóa đơn chưa thanh toán
+            $this->refreshTabTotals();
+            
+            session()->flash('message', 'Đã xóa hóa đơn thành công.');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Có lỗi xảy ra khi xóa hóa đơn: ' . $e->getMessage());
+            \Log::error('Error deleting invoice: ' . $e->getMessage());
+        }
+    }
 
     public function getActiveCartInstanceProperty()
     {
@@ -379,80 +413,55 @@ class PosManager extends Component
     
     private function saveTabsToSession()
     {
-        // Lưu tabs có hàng vào session
-        $tabsWithItems = [];
-        foreach ($this->tabs as $tab) {
-            try {
-                if (Cart::instance($tab)->count() > 0) {
-                    $tabsWithItems[] = $tab;
-                }
-            } catch (\Exception $e) {
-                continue;
-            }
-        }
+        // Lưu tất cả tabs vào session, kể cả tab trống
         session([
-            'pos_tabs' => $tabsWithItems,
+            'pos_tabs' => $this->tabs,
             'pos_active_tab' => $this->activeTab, // Lưu tab đang active
         ]);
     }
 
     public function refreshTabTotals()
     {
-        // Kiểm tra tabs hiện tại và loại bỏ các tabs đã trống
-        $tabsWithItems = [];
-        foreach ($this->tabs as $tab) {
-            try {
-                if (Cart::instance($tab)->count() > 0) {
-                    $tabsWithItems[] = $tab;
-                }
-            } catch (\Exception $e) {
-                continue;
-            }
-        }
+        // Giữ nguyên tất cả các tabs hiện có, không tự động xóa tab trống
+        $currentTabs = $this->tabs;
         
-        // Nếu chỉ có 1 tab hoặc ít hơn, quét thêm các tabs khác có hàng
-        if (count($tabsWithItems) <= 1) {
-            $scannedTabs = $this->scanForCartInstances(50);
-            foreach ($scannedTabs as $tab) {
-                if (!in_array($tab, $tabsWithItems)) {
-                    $tabsWithItems[] = $tab;
-                }
-            }
-            
-            // Sắp xếp lại
-            if (count($tabsWithItems) > 1) {
-                usort($tabsWithItems, function($a, $b) {
-                    preg_match('/invoice-(\d+)/', $a, $matchesA);
-                    preg_match('/invoice-(\d+)/', $b, $matchesB);
-                    $numA = isset($matchesA[1]) ? (int)$matchesA[1] : 0;
-                    $numB = isset($matchesB[1]) ? (int)$matchesB[1] : 0;
-                    return $numA <=> $numB;
-                });
-            }
+        // Quét thêm các tabs mới nếu có
+        $scannedTabs = $this->scanForCartInstances(50);
+        $allTabs = array_unique(array_merge($currentTabs, $scannedTabs));
+        
+        // Sắp xếp lại tabs
+        if (count($allTabs) > 1) {
+            usort($allTabs, function($a, $b) {
+                preg_match('/invoice-(\d+)/', $a, $matchesA);
+                preg_match('/invoice-(\d+)/', $b, $matchesB);
+                $numA = isset($matchesA[1]) ? (int)$matchesA[1] : 0;
+                $numB = isset($matchesB[1]) ? (int)$matchesB[1] : 0;
+                return $numA <=> $numB;
+            });
         }
         
         // Đảm bảo luôn có ít nhất 1 tab
-        if (empty($tabsWithItems)) {
-            $tabsWithItems = ['invoice-1'];
+        if (empty($allTabs)) {
+            $allTabs = ['invoice-1'];
             $this->nextTabId = 2;
-        }
-        
-        // Cập nhật tabs nếu có thay đổi
-        if (count($tabsWithItems) !== count($this->tabs) || $tabsWithItems !== array_values($this->tabs)) {
-            $this->tabs = $tabsWithItems;
-            
+        } else {
             // Cập nhật nextTabId
             $maxId = 1;
-            foreach ($tabsWithItems as $tab) {
+            foreach ($allTabs as $tab) {
                 if (preg_match('/invoice-(\d+)/', $tab, $matches)) {
                     $maxId = max($maxId, (int)$matches[1]);
                 }
             }
             $this->nextTabId = $maxId + 1;
+        }
+        
+        // Cập nhật tabs nếu có thay đổi
+        if ($allTabs !== $this->tabs) {
+            $this->tabs = $allTabs;
             
-            // Nếu tab active hiện tại không còn hàng, chuyển sang tab đầu tiên
-            if (!in_array($this->activeTab, $tabsWithItems)) {
-                $this->activeTab = $tabsWithItems[0];
+            // Nếu tab active hiện tại không còn tồn tại, chuyển sang tab đầu tiên
+            if (!in_array($this->activeTab, $allTabs)) {
+                $this->activeTab = $allTabs[0];
                 $this->dispatch('tabChanged', $this->activeTab);
             }
             
@@ -460,7 +469,6 @@ class PosManager extends Component
             $this->saveTabsToSession();
         } else {
             // Vẫn lưu activeTab vào session ngay cả khi không có thay đổi tabs
-            // để đảm bảo trạng thái được giữ nguyên
             session(['pos_active_tab' => $this->activeTab]);
         }
     }

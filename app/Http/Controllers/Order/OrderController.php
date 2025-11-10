@@ -69,7 +69,7 @@ class OrderController extends Controller
         $savedTabs = array_values(array_filter($savedTabs, fn($tab) => $tab !== $cartInstance));
         session(['pos_tabs' => $savedTabs]);
 
-        // Trả về JSON response để hiển thị modal thay vì redirect
+        // Trả về JSON response để hiển thị modal và chuyển hướng in hóa đơn
         if ($request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
             return response()->json([
                 'success' => true,
