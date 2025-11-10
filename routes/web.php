@@ -10,6 +10,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Order\DueOrderController;
+use App\Http\Controllers\PosController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Purchase\PurchaseController;
 use App\Http\Controllers\Order\OrderPendingController;
@@ -42,8 +43,6 @@ Route::get('/', function () {
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     // User Management
     Route::resource('/users', UserController::class); //->except(['show']);
@@ -104,12 +103,24 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pos', [PosController::class, 'index'])->name('pos.index');
     Route::post('/pos/checkout', [OrderController::class, 'store'])->name('pos.checkout');
 
+    // Profile - Chỉnh sửa thông tin cá nhân (cả admin và user)
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // Orders - Cả admin và user đều có thể xem
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/pending', [OrderPendingController::class, '__invoke'])->name('orders.pending');
+    Route::get('/orders/complete', [OrderCompleteController::class, '__invoke'])->name('orders.complete');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::get('/orders/details/{order}/download', [OrderController::class, 'downloadInvoice'])->name('order.downloadInvoice');
+    Route::get('/orders/{order}/success', [OrderController::class, 'success'])->name('orders.success');
+
     // Purchases - User chỉ có thể xem, không thể chỉnh sửa
     Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
     Route::get('/purchases/{purchase}', [PurchaseController::class, 'show'])->name('purchases.show');
 
-    // DUES - User chỉ có thể xem
-    Route::get('/due/orders/', [DueOrderController::class, 'index'])->name('due.index');
+    // DUES - Cả admin và user đều có thể xem
+    Route::get('/due/orders', [DueOrderController::class, 'index'])->name('due.index');
     Route::get('/due/order/view/{order}', [DueOrderController::class, 'show'])->name('due.show');
 });
 

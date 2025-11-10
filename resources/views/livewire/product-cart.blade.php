@@ -41,12 +41,17 @@
                                     @include('livewire.includes.product-cart-modal')
                                 </td>
 
-                                <td x-data="{ open{{ $cart_item->id }}: false }" class="align-middle text-center">
-                                    <span x-show="!open{{ $cart_item->id }}" @click="open{{ $cart_item->id }} = !open{{ $cart_item->id }}">
+                                <td class="align-middle text-center" x-data="{
+                                    open: false,
+                                    toggle() {
+                                        this.open = !this.open;
+                                    }
+                                }">
+                                    <span x-show="!open" @click="toggle()" style="cursor: pointer;">
                                         {{ format_currency($cart_item->price) }}
                                     </span>
 
-                                    <div x-show="open{{ $cart_item->id }}">
+                                    <div x-show="open" @click.away="open = false">
                                         @include('livewire.includes.product-cart-price')
                                     </div>
                                 </td>

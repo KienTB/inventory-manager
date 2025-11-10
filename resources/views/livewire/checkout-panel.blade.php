@@ -71,7 +71,14 @@
             </form>
 
             <script>
+                // Ensure Livewire is loaded
+                document.addEventListener('livewire:initialized', () => {
+                    console.log('Livewire is ready!');
+                });
+
                 function handleCheckout(event) {
+                    event.preventDefault();
+                    
                     const form = event.target;
                     const btn = form.querySelector('#checkout-btn');
                     const originalText = btn.innerHTML;
@@ -80,49 +87,71 @@
                     btn.disabled = true;
                     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
                     
-                    // Cập nhật payment_type và pay từ Livewire
-                    const paymentMethod = @js($this->payment_method);
-                    const received = @js($this->received);
-                    const total = @js($this->total);
-                    
-                    form.querySelector('#payment_type').value = paymentMethod === 'bank' ? 'BankTransfer' : 'HandCash';
-                    form.querySelector('#pay_amount').value = received > 0 ? received : total;
-                    
-                    // Tạo FormData
-                    const formData = new FormData(form);
-                    
-                    // Gửi AJAX request
-                    fetch(form.action, {
-                        method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: formData
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            // Hiển thị modal thành công - dispatch event đến PaymentSuccessModal
-                            Livewire.dispatch('showPaymentSuccess', { orderId: data.order_id });
-                        } else {
-                            // Hiển thị lỗi
-                            alert(data.message || 'Có lỗi xảy ra');
+                    try {
+                        // Cập nhật payment_type và pay từ Livewire
+                        const paymentMethod = @js($this->payment_method);
+                        const received = @js($this->received);
+                        const total = @js($this->total);
+                        
+                        form.querySelector('#payment_type').value = paymentMethod === 'bank' ? 'BankTransfer' : 'HandCash';
+                        form.querySelector('#pay_amount').value = received > 0 ? received : total;
+                        
+                        // Tạo FormData
+                        const formData = new FormData(form);
+                        
+                        // Gửi AJAX request
+                        fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: new URLSearchParams(formData).toString()
+                        })
+                        .then(async response => {
+                            const data = await response.json();
+                            
+                            if (!response.ok) {
+                                throw new Error(data.message || 'Network response was not ok');
+                            }
+                            
+                            if (data.success) {
+                                // Nếu có redirect URL, mở trong tab mới để in
+                                if (data.redirect) {
+                                    const printWindow = window.open(data.redirect, '_blank');
+                                    // Focus vào tab mới
+                                    if (printWindow) {
+                                        printWindow.focus();
+                                    }
+                                }
+                                // Hiển thị modal thành công
+                                if (window.Livewire) {
+                                    window.Livewire.dispatch('showPaymentSuccess', { orderId: data.order_id });
+                                } else {
+                                    console.error('Livewire is not available');
+                                    window.location.reload(); // Fallback reload
+                                }
+                            } else {
+                                throw new Error(data.message || 'Có lỗi xảy ra');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Checkout Error:', error);
+                            alert(error.message || 'Có lỗi xảy ra khi thanh toán. Vui lòng thử lại.');
+                        })
+                        .finally(() => {
                             btn.disabled = false;
                             btn.innerHTML = originalText;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Có lỗi xảy ra khi thanh toán');
+                        });
+                        
+                    } catch (error) {
+                        console.error('Unexpected Error:', error);
+                        alert('Có lỗi không mong muốn xảy ra. Vui lòng thử lại.');
                         btn.disabled = false;
                         btn.innerHTML = originalText;
-                    });
+                    }
                 }
                 
                 // Cập nhật pay_amount khi received hoặc total thay đổi

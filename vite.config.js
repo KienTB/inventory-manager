@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import { viteStaticCopy } from "vite-plugin-static-copy";
+import livewire from '@defstudio/vite-livewire-plugin';
+import path from 'path';
 
 export default defineConfig({
     server: {
@@ -16,10 +18,27 @@ export default defineConfig({
             interval: 300,
         },
     },
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, './resources/js'),
+            '~': path.resolve(__dirname, './node_modules'),
+        },
+    },
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.js'],
-            refresh: true,
+            refresh: [
+                'resources/views/**',
+                'app/Http/Controllers/**',
+                'app/Livewire/**',
+            ],
+        }),
+        livewire({
+            refresh: [
+                'resources/views/**',
+                'app/Http/Controllers/**',
+                'app/Livewire/**',
+            ],
         }),
         viteStaticCopy({
             targets: [
