@@ -11,7 +11,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l-2 0l9 -9l9 9l-2 0" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
                             </span>
                             <span class="nav-link-title">
-                                {{ __('Dashboard') }}
+                                {{ __('Trang tổng quan') }}
                             </span>
                         </a>
                     </li>
@@ -22,7 +22,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-packages" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 16.5l-5 -3l5 -3l5 3v5.5l-5 3z" /><path d="M2 13.5v5.5l5 3" /><path d="M7 16.545l5 -3.03" /><path d="M17 16.5l-5 -3l5 -3l5 3v5.5l-5 3z" /><path d="M12 19l5 3" /><path d="M17 16.5l5 -3" /><path d="M12 13.5v-5.5l-5 -3l5 -3l5 3v5.5" /><path d="M7 5.03v5.455" /><path d="M12 8l5 -3" /></svg>
                             </span>
                             <span class="nav-link-title">
-                                {{ __('Products') }}
+                                {{ __('Sản phẩm') }}
                             </span>
                         </a>
                     </li>
@@ -33,20 +33,23 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-package-export" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 21l-8 -4.5v-9l8 -4.5l8 4.5v4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12v9" /><path d="M12 12l-8 -4.5" /><path d="M15 18h7" /><path d="M19 15l3 3l-3 3" /></svg>
                             </span>
                             <span class="nav-link-title">
-                                {{ __('Orders') }}
+                                {{ __('Đơn hàng') }}
                             </span>
                         </a>
                         <div class="dropdown-menu">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
                                     <a class="dropdown-item" href="{{ route('orders.index') }}">
-                                        {{ __('All Orders') }}
+                                        {{ __('Tất cả') }}
                                     </a>
                                     <a class="dropdown-item" href="{{ route('orders.complete') }}">
-                                        {{ __('Completed') }}
+                                        {{ __('Hoàn thành') }}
                                     </a>
                                     <a class="dropdown-item" href="{{ route('orders.pending') }}">
-                                        {{ __('Pending') }}
+                                        {{ __('Chờ xử lý') }}
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('due.index') }}">
+                                        {{ __('Quá hạn') }}
                                     </a>
                                 </div>
                             </div>
@@ -59,20 +62,20 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-package-import" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 21l-8 -4.5v-9l8 -4.5l8 4.5v4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12v9" /><path d="M12 12l-8 -4.5" /><path d="M22 18h-7" /><path d="M18 15l-3 3l3 3" /></svg>
                             </span>
                             <span class="nav-link-title">
-                                {{ __('Purchases') }}
+                                {{ __('Nhập hàng') }}
                             </span>
                         </a>
                         <div class="dropdown-menu">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
                                     <a class="dropdown-item" href="{{ route('purchases.index') }}">
-                                        {{ __('All') }}
+                                        {{ __('Tất cả') }}
                                     </a>
                                     <a class="dropdown-item" href="{{ route('purchases.approvedPurchases') }}">
-                                        {{ __('Approval') }}
+                                        {{ __('Phê duyệt') }}
                                     </a>
                                     <a class="dropdown-item" href="{{ route('purchases.dailyPurchaseReport') }}">
-                                        {{ __('Daily Purchase Report') }}
+                                        {{ __('Báo cáo nhập hàng hằng ngày') }}
                                     </a>
                                 </div>
                             </div>
@@ -81,11 +84,11 @@
 
                     <li class="nav-item {{ request()->is('quotations') ? 'active' : null }}">
                         <a class="nav-link" href="{{ route('quotations.index') }}" >
-                            <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /></svg>
                             </span>
                             <span class="nav-link-title">
-                                {{ __('Quotations') }}
+                                {{ __('Báo giá') }}
                             </span>
                         </a>
                     </li>
@@ -96,17 +99,17 @@
                               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-layers-subtract" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 4m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z" /><path d="M16 16v2a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2v-8a2 2 0 0 1 2 -2h2" /></svg>
                             </span>
                             <span class="nav-link-title">
-                                {{ __('Pages') }}
+                                {{ __('Đối tác') }}
                             </span>
                         </a>
                         <div class="dropdown-menu">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
                                     <a class="dropdown-item" href="{{ route('suppliers.index') }}">
-                                        {{ __('Suppliers') }}
+                                        {{ __('Nhà cung cấp') }}
                                     </a>
                                     <a class="dropdown-item" href="{{ route('customers.index') }}">
-                                        {{ __('Customers') }}
+                                        {{ __('Khách hàng') }}
                                     </a>
                                 </div>
                             </div>
@@ -128,7 +131,7 @@
                                     <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" /><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /></svg>
                             </span>
                                 <span class="nav-link-title">
-                                {{ __('Settings') }}
+                                {{ __('Cài đặt') }}
                             </span>
                         </a>
                         <div class="dropdown-menu">
@@ -138,20 +141,19 @@
                                         {{ __('Cấu hình cửa hàng') }}
                                     </a>
                                     <a class="dropdown-item" href="{{ route('users.index') }}">
-                                        {{ __('Users') }}
+                                        {{ __('Người dùng') }}
                                     </a>
                                     <a class="dropdown-item" href="{{ route('categories.index') }}">
-                                        {{ __('Categories') }}
+                                        {{ __('Danh mục') }}
                                     </a>
                                     <a class="dropdown-item" href="{{ route('units.index') }}">
-                                        {{ __('Units') }}
+                                        {{ __('Đơn vị tính') }}
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </li>
                     @else
-                    <!-- Menu cho nhân viên bán hàng (User) -->
                     <li class="nav-item {{ request()->is('pos*') ? 'active' : null }}">
                         <a class="nav-link" href="{{ route('pos.index') }}" >
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -176,13 +178,13 @@
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
                                     <a class="dropdown-item" href="{{ route('orders.index') }}">
-                                        {{ __('All Orders') }}
+                                        {{ __('Tất cả đơn hàng') }}
                                     </a>
                                     <a class="dropdown-item" href="{{ route('orders.complete') }}">
-                                        {{ __('Completed') }}
+                                        {{ __('Đã hoàn thành') }}
                                     </a>
                                     <a class="dropdown-item" href="{{ route('orders.pending') }}">
-                                        {{ __('Pending') }}
+                                        {{ __('Chờ xử lý') }}
                                     </a>
                                 </div>
                             </div>

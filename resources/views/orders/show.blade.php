@@ -7,28 +7,36 @@
                 <div class="card-header">
                     <div>
                         <h3 class="card-title">
-                            {{ __('Order Details') }}
+                            {{ __('Chi tiết đơn hàng') }}
                         </h3>
                     </div>
 
                     <div class="card-actions btn-actions">
                         <div class="dropdown">
-                            <a href="#" class="btn-action dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><!-- Download SVG icon from http://tabler-icons.io/i/dots-vertical -->
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path><path d="M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path><path d="M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path></svg>
+                            <a href="#" class="btn-action dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                                    <path d="M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                                    <path d="M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                                </svg>
                             </a>
 
-                            <div class="dropdown-menu dropdown-menu-end" style="">
+                            <div class="dropdown-menu dropdown-menu-end">
                                 @if ($order->order_status === \App\Enums\OrderStatus::PENDING)
                                     <form action="{{ route('orders.update', $order) }}" method="POST">
                                         @csrf
                                         @method('put')
 
                                         <button type="submit" class="dropdown-item text-success"
-                                                onclick="return confirm('Are you sure you want to approve this order?')"
+                                                onclick="return confirm('Bạn có chắc chắn muốn duyệt đơn hàng này không?')"
                                         >
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M5 12l5 5l10 -10" />
+                                            </svg>
 
-                                            {{ __('Approve Order') }}
+                                            {{ __('Duyệt đơn hàng') }}
                                         </button>
                                     </form>
                                 @endif
@@ -43,7 +51,7 @@
                     <div class="row row-cards mb-3">
                         <div class="col">
                             <label for="order_date" class="form-label required">
-                                {{ __('Order Date') }}
+                                {{ __('Ngày đặt hàng') }}
                             </label>
                             <input type="text"
                                    id="order_date"
@@ -55,7 +63,7 @@
 
                         <div class="col">
                             <label for="invoice_no" class="form-label required">
-                                {{ __('Invoice No.') }}
+                                {{ __('Mã hóa đơn') }}
                             </label>
                             <input type="text"
                                    id="invoice_no"
@@ -67,19 +75,19 @@
 
                         <div class="col">
                             <label for="customer" class="form-label required">
-                                {{ __('Customer') }}
+                                {{ __('Khách hàng') }}
                             </label>
                             <input type="text"
                                    id="customer"
                                    class="form-control"
-                                   value="{{ $order->customer?->name ?? 'N/A' }}"
+                                   value="{{ $order->customer?->name ?? 'Không có dữ liệu' }}"
                                    disabled
                             >
                         </div>
 
                         <div class="col">
                             <label for="payment_type" class="form-label required">
-                                {{ __('Payment Type') }}
+                                {{ __('Hình thức thanh toán') }}
                             </label>
 
                             <input type="text" id="payment_type" class="form-control" value="{{ $order->payment_type }}" disabled>
@@ -90,13 +98,13 @@
                         <table class="table table-striped table-bordered align-middle">
                             <thead class="thead-light">
                             <tr>
-                                <th scope="col" class="align-middle text-center">No.</th>
-                                <th scope="col" class="align-middle text-center">Photo</th>
-                                <th scope="col" class="align-middle text-center">Product Name</th>
-                                <th scope="col" class="align-middle text-center">Product Code</th>
-                                <th scope="col" class="align-middle text-center">Quantity</th>
-                                <th scope="col" class="align-middle text-center">Price</th>
-                                <th scope="col" class="align-middle text-center">Total</th>
+                                <th scope="col" class="align-middle text-center">STT</th>
+                                <th scope="col" class="align-middle text-center">Hình ảnh</th>
+                                <th scope="col" class="align-middle text-center">Tên sản phẩm</th>
+                                <th scope="col" class="align-middle text-center">Mã sản phẩm</th>
+                                <th scope="col" class="align-middle text-center">Số lượng</th>
+                                <th scope="col" class="align-middle text-center">Đơn giá</th>
+                                <th scope="col" class="align-middle text-center">Thành tiền</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -129,20 +137,20 @@
                             @endforeach
                             <tr>
                                 <td colspan="6" class="text-end">
-                                    Payed amount
+                                    Số tiền đã thanh toán
                                 </td>
                                 <td class="text-center">{{ number_format($order->pay, 2) }}</td>
                             </tr>
                             <tr>
-                                <td colspan="6" class="text-end">Due</td>
+                                <td colspan="6" class="text-end">Còn nợ</td>
                                 <td class="text-center">{{ number_format($order->due, 2) }}</td>
                             </tr>
                             <tr>
-                                <td colspan="6" class="text-end">VAT</td>
+                                <td colspan="6" class="text-end">Thuế VAT</td>
                                 <td class="text-center">{{ number_format($order->vat, 2) }}</td>
                             </tr>
                             <tr>
-                                <td colspan="6" class="text-end">Total</td>
+                                <td colspan="6" class="text-end">Tổng cộng</td>
                                 <td class="text-center">{{ number_format($order->total, 2) }}</td>
                             </tr>
                             </tbody>
@@ -158,9 +166,9 @@
 
                             <button type="submit"
                                     class="btn btn-success"
-                                    onclick="return confirm('Are you sure you want to complete this order?')"
+                                    onclick="return confirm('Bạn có chắc chắn muốn hoàn tất đơn hàng này không?')"
                             >
-                                {{ __('Complete Order') }}
+                                {{ __('Hoàn tất đơn hàng') }}
                             </button>
                         </form>
                     @endif

@@ -16,12 +16,11 @@
                             <div class="card-header">
                                 <div>
                                     <h3 class="card-title">
-                                        {{ __('Create Order') }}
+                                        Tạo đơn hàng
                                     </h3>
                                 </div>
 
                                 <div class="card-actions btn-actions">
-                                    {{--- {{ URL::previous() }} ---}}
                                     <a href="{{ route('orders.index') }}" class="btn-action">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M18 6l-12 12"></path><path d="M6 6l12 12"></path></svg>
                                     </a>
@@ -32,7 +31,7 @@
                                 <div class="row gx-3 mb-3">
                                     <div class="col-md-6">
                                         <label for="date" class="form-label required">
-                                            {{ __('Order Date') }}
+                                            Ngày đặt hàng
                                         </label>
 
                                         <input name="date" id="date" type="date"
@@ -51,7 +50,7 @@
 
                                     <div class="col-md-6">
                                         <label for="reference" class="form-label required">
-                                            {{ __('Reference') }}
+                                            Mã tham chiếu
                                         </label>
 
                                         <input type="text" class="form-control"
@@ -70,14 +69,11 @@
                                 </div>
 
                                 <livewire:order-form :cart-instance="'order'" />
-                                {{-- livewire:product-cart :cartInstance="'orders'"/>--}}
                             </div>
 
                             <div class="card-footer text-end">
-                                {{--- onclick="return confirm('Are you sure you want to purchase?')" ---}}
-                                {{--- @disabled($errors->isNotEmpty()) ---}}
                                 <button type="submit" class="btn btn-primary">
-                                    {{ __('Create Invoice') }}
+                                    Tạo hóa đơn
                                 </button>
                             </div>
                         </div>
